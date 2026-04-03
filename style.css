@@ -1,0 +1,50 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f4f1ee;
+}
+
+.header {
+  background: #4b2e2e;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  height: 90vh;
+}
+
+#results {
+  width: 40%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+#map {
+  width: 60%;
+}
+
+/* Card */
+.place-card {
+  background: white;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.place-card:hover {
+  transform: scale(1.02);
+}
+
+/* Animación */
+.place-card {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
