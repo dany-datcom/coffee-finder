@@ -4,60 +4,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- SEO básico -->
   <meta name="description" content="Find the best coffee shops to study, work, or code with good WiFi and comfort.">
-
-  <title>Coffee Finder ☕</title>
-
+  <title>Code & Coffee Finder ☕</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
+  <!-- Navigation bar component -->
+  <nav class="navbar" id="navbar">
+    <!-- Dynamically rendered navbar -->
+  </nav>
 
-  <!-- HEADER -->
-  <header class="header">
-    <h1>☕ Coffee & Code Finder</h1>
-
-    <form id="search-form">
-      <input 
-        type="text" 
-        id="search-input" 
-        placeholder="Search city..." 
-        required 
-        aria-label="Search city"
-      />
-      <button type="submit">Search</button>
-    </form>
-  </header>
-
-  <!-- MAIN -->
-  <main class="container">
-
-    <!-- RESULTADOS -->
-    <section id="results">
-      <!-- Loader -->
-      <div id="loader" class="loader hidden"></div>
-    </section>
-
-    <!-- MAPA -->
-    <section id="map"></section>
-
+  <!-- Main application container -->
+  <main id="app">
+    <!-- Page content rendered dynamically based on current route -->
   </main>
 
-  <!-- TEMPLATE -->
-  <template id="place-template">
-    <div class="place-card">
-      <h3 class="place-name"></h3>
-      <p class="place-address"></p>
-      <button class="favorite-btn">⭐ Save</button>
+  <!-- Modal for displaying coffee shop details -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <div id="modal-body">
+        <!-- Modal content loaded dynamically -->
+      </div>
     </div>
-  </template>
+  </div>
 
-  <!-- JS -->
+  <!-- Footer component -->
+  <footer class="footer" id="footer">
+    <!-- Dynamically rendered footer -->
+  </footer>
+
+  <!-- Application entry point -->
   <script type="module" src="/src/main.js"></script>
 
-  <!-- Google Maps -->
+  <!-- Google Maps JavaScript API -->
   <script async
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACnb-PSZ2fE_Cop1HYAizvZoqu82G23qI">
   </script>
