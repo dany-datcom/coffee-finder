@@ -4,8 +4,31 @@
  * Provides functions for searching coffee shops by location and bounds
  */
 
-const API_KEY = "001ee560e2694bd5a870f6a31c7a5c65";
+const API_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
 
+async function fetchJson(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error (`Error: ${response.status}`);
+  }
+
+  return response.json();
+}  
+
+function mapCoffeeShop(place, idx) {
+  return {
+    id: idx,
+    name: place.properties.name || "Untitled Café",
+    address: place.properties.formatted || "Address not available",
+    geocodes: {
+      main: {
+        latitude: place.properties.lat,
+        longitude: place.properties.lon
+       },
+     },
+  }; 
+}    
 /**
  * Search coffee shops by city name or query
  * Uses proximity bias towards Costa Rica
@@ -21,27 +44,11 @@ export async function searchPlaces(query = "San Jose") {
   try {
     console.log(`🚀 Searching: "${query}"`);
     
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const data = await fetchJson(url);
     console.log("🌍 Geoapify response:", data);
     
     // Transform API response to application format
-    return data.features.map((place, idx) => ({
-      id: idx,
-      name: place.properties.name || "Untitled Café",
-      address: place.properties.formatted || "Address not available",
-      geocodes: {
-        main: {
-          latitude: place.properties.lat,
-          longitude: place.properties.lon
-        }
-      }
-    }));
+    return data.features.map(mapCoffeeShop);
     
   } catch (error) {
     console.error("❌ Geoapify error:", error);
@@ -62,13 +69,7 @@ export async function geocodeCity(cityName) {
   const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(cityName)}&country=Costa%20Rica&limit=1&apiKey=${API_KEY}`;
   
   try {
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const data = await fetchJson(url);
     console.log("📍 Geocode response:", data);
     
     // Return null if no results
@@ -110,18 +111,14 @@ export async function searchPlacesByBounds(bounds) {
   console.log(`📏 Search radius: ${radiusKm} km`);
 
   try {
+    
     // Search coffee shops using proximity (map center coordinates)
     const searchUrl = `https://api.geoapify.com/v2/places?categories=catering.cafe&bias=proximity:${centerLng},${centerLat}&limit=50&apiKey=${API_KEY}`;
     
+   
     console.log(`🌐 API URL: ${searchUrl}`);
-    
-    const searchResponse = await fetch(searchUrl);
-    
-    if (!searchResponse.ok) {
-      throw new Error(`API Error: ${searchResponse.status}`);
-    }
-    
-    const searchData = await searchResponse.json();
+     
+     const searchData = await fetchJson(searchUrl);
     console.log(`📍 ${searchData.features?.length || 0} coffee shops found`);
     
     if (!searchData.features) {
@@ -142,17 +139,9 @@ export async function searchPlacesByBounds(bounds) {
     console.log(`✅ ${cafesInBounds.length} coffee shops within visible map area`);
     
     // Transform results to application format
-    return cafesInBounds.map((place, idx) => ({
-      id: idx,
-      name: place.properties.name || "Untitled Café",
-      address: place.properties.formatted || "Address not available",
-      geocodes: {
-        main: {
-          latitude: place.properties.lat,
-          longitude: place.properties.lon
-        }
-      }
-    }));
+    return cafesInBounds.map(mapCoffeeShop);
+
+  
     
   } catch (error) {
     console.error("❌ Bounds search error:", error);

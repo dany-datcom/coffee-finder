@@ -3,14 +3,17 @@
  * Handles map initialization, marker placement, and map interactions
  * Implements dynamic search when user moves or zooms the map
  */
-
+/* global google */
 import { searchPlacesByBounds } from "./api.js";
 import { renderPlaces } from "./ui.js";
+import { setLoading } from "./utils/loading.js";
 
-let map;
-let markers = [];
-let infoWindows = [];
-let searchTimeout;
+const mapState = {
+  map: null,
+  markers: [],
+  infoWindows: [],
+  searchTimeout: null
+};
 
 /**
  * Initialize Google Map instance
@@ -18,7 +21,7 @@ let searchTimeout;
  * Removes POI labels for cleaner appearance
  */
 export function createMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
+  mapState.map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 9.9281, lng: -84.0907 },
     zoom: 13,
     styles: [
@@ -41,13 +44,13 @@ export function createMap() {
  */
 function setupMapListeners() {
   // Trigger search when user finishes dragging map
-  map.addListener("dragend", () => {
+  mapState.map.addListener("dragend", () => {
     console.log("🖱️ User moved map");
     debouncedSearch();
   });
 
   // Trigger search when user changes zoom level
-  map.addListener("zoom_changed", () => {
+  mapState.map.addListener("zoom_changed", () => {
     console.log("🔍 User changed zoom");
     debouncedSearch();
   });
@@ -59,53 +62,147 @@ function setupMapListeners() {
  * Prevents multiple rapid API calls
  */
 function debouncedSearch() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
+  clearTimeout(mapState.searchTimeout);
+  mapState.searchTimeout = setTimeout(() => {
     performBoundsSearch();
   }, 800);
 }
 
 /**
- * Perform search based on current map bounds
- * Queries coffee shops visible in current map viewport
+ * Get current visible map bounds
+ * Converts Google Maps bounds into application format
+ * @returns {Object|null} Bounds object or null if unavailable
  */
-async function performBoundsSearch() {
-  const bounds = map.getBounds();
+function getMapBounds() {
+  const bounds = mapState.map.getBounds();
 
   if (!bounds) {
     console.warn("⚠️ Map bounds not available yet");
-    return;
+    return null;
   }
 
-  const boundsObj = {
+  return {
     south: bounds.getSouthWest().lat(),
     north: bounds.getNorthEast().lat(),
     west: bounds.getSouthWest().lng(),
     east: bounds.getNorthEast().lng()
   };
+}
+function clearMarkersAndInfoWindows() {
+  mapState.markers.forEach(marker => marker.setMap(null));
+  mapState.markers = [];
+
+  mapState.infoWindows.forEach(infoWindow => infoWindow.close());
+  mapState.infoWindows = [];
+}
+
+/**
+ * Create a single map marker
+ * @param {Object} place - Coffee shop data
+ * @param {Number} index - Marker number
+ * @param {Object} bounds - Google Maps bounds instance
+ */
+function createMarker(place, index, bounds) {
+  const lat = place.geocodes?.main?.latitude;
+  const lng = place.geocodes?.main?.longitude;
+
+  if (lat == null || lng == null) {
+    console.warn(`⚠️ Invalid coordinates for: ${place.name}`);
+    return;
+  }
+
+  const marker = new google.maps.Marker({
+    position: { lat, lng },
+    map: mapState.map,
+    title: place.name,
+    label: String(index + 1)
+  });
+
+  const infoWindow = createInfoWindow(place);
+
+  marker.addListener("click", () => {
+    mapState.infoWindows.forEach(iw => iw.close());
+    infoWindow.open(map, marker);
+  });
+
+  mapState.markers.push(marker);
+  mapState.infoWindows.push(infoWindow);
+
+  bounds.extend({ lat, lng });
+}
+
+/**
+ * Create information popup for a coffee shop
+ * @param {Object} place - Coffee shop data
+ * @returns {google.maps.InfoWindow}
+ */
+function createInfoWindow(place) {
+  return new google.maps.InfoWindow({
+    content: `
+      <div style="padding: 10px; max-width: 200px;">
+        <h3 style="margin: 0 0 5px 0;">${place.name}</h3>
+        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+          ${place.address}
+        </p>
+      </div>
+    `
+  });
+}
+
+/**
+ * Adjust map view to display markers
+ * @param {google.maps.LatLngBounds} bounds - Marker boundaries
+ */
+function fitMarkersOnMap(bounds) {
+  if (mapState.markers.length > 1) {
+    mapState.map.fitBounds(bounds);
+
+  } else if (mapState.markers.length === 1) {
+    mapState.map.setCenter(
+      mapState.markers[0].getPosition()
+    );
+
+    mapState.map.setZoom(16);
+  }
+}
+
+/**
+ * Update UI and map with search results
+ * @param {Array} places - Coffee shops found
+ */
+function updateSearchResults(places) {
+  renderPlaces(places);
+  addMarkers(places, false);
+}
+/**
+ * Perform search based on current map bounds
+ * Queries coffee shops visible in current map viewport
+ */
+async function performBoundsSearch() {
+  const boundsObj = getMapBounds();
+
+  if (!boundsObj) {
+    return;
+  }
 
   console.log("📦 Searching by bounds:", boundsObj);
 
   try {
-    const loader = document.getElementById("loader");
-    if (loader) {
-      loader.classList.remove("hidden");
-    }
-
+    setLoading(true);
     // Search for coffee shops in current map view
     const places = await searchPlacesByBounds(boundsObj);
 
     console.log(`📍 ${places.length} coffee shops found`);
 
     // Update UI with new results
-    renderPlaces(places);
-    addMarkers(places, false);
+    updateSearchResults(places);
+
   } catch (error) {
     console.error("❌ Bounds search error:", error);
   } finally {
     const loader = document.getElementById("loader");
     if (loader) {
-      loader.classList.add("hidden");
+      setLoading(false);
     }
   }
 }
@@ -135,13 +232,8 @@ export function centerMapOnCity(lat, lng, zoomLevel = 13) {
  * @param {Boolean} shouldAutoCenter - Whether to auto-zoom to fit markers (default true)
  */
 export function addMarkers(places, shouldAutoCenter = true) {
-  // Clear previous markers from map
-  markers.forEach(marker => marker.setMap(null));
-  markers = [];
-
-  // Close previous info windows
-  infoWindows.forEach(infoWindow => infoWindow.close());
-  infoWindows = [];
+  
+  clearMarkersAndInfoWindows();
 
   if (!places || places.length === 0) {
     console.warn("⚠️ No markers to add");
@@ -152,58 +244,15 @@ export function addMarkers(places, shouldAutoCenter = true) {
 
   // Create marker for each coffee shop
   places.forEach((place, index) => {
-    const lat = place.geocodes?.main?.latitude;
-    const lng = place.geocodes?.main?.longitude;
-
-    // Skip places with invalid coordinates
-    if (lat == null || lng == null) {
-      console.warn(`⚠️ Invalid coordinates for: ${place.name}`);
-      return;
-    }
-
-    // Create marker with number label
-    const marker = new google.maps.Marker({
-      position: { lat, lng },
-      map,
-      title: place.name,
-      label: String(index + 1)
-    });
-
-    // Create info window with shop details
-    const infoWindow = new google.maps.InfoWindow({
-      content: `
-        <div style="padding: 10px; max-width: 200px;">
-          <h3 style="margin: 0 0 5px 0;">${place.name}</h3>
-          <p style="margin: 0; font-size: 0.9rem; color: #666;">
-            ${place.address}
-          </p>
-        </div>
-      `
-    });
-
-    // Open info window on marker click
-    marker.addListener("click", () => {
-      infoWindows.forEach(iw => iw.close());
-      infoWindow.open(map, marker);
-    });
-
-    markers.push(marker);
-    infoWindows.push(infoWindow);
-
-    bounds.extend({ lat, lng });
+    createMarker(place, index, bounds);
   });
 
   // Auto-center map to show all markers
   if (shouldAutoCenter) {
-    if (markers.length > 1) {
-      map.fitBounds(bounds);
-    } else if (markers.length === 1) {
-      map.setCenter(markers[0].getPosition());
-      map.setZoom(16);
-    }
-  }
+  fitMarkersOnMap(bounds);
+}
 
-  console.log(`✅ ${markers.length} markers added`);
+  console.log(`✅ ${mapState.markers.length} markers added`);
 }
 
 /**
@@ -211,11 +260,7 @@ export function addMarkers(places, shouldAutoCenter = true) {
  * Removes all markers and closes info windows
  */
 export function clearMap() {
-  markers.forEach(marker => marker.setMap(null));
-  markers = [];
-
-  infoWindows.forEach(infoWindow => infoWindow.close());
-  infoWindows = [];
+  clearMarkersAndInfoWindows();
+}
 
   console.log("✅ Map cleared");
-}

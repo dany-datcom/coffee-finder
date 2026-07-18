@@ -4,9 +4,8 @@
  * Handles location search, geocoding, and dynamic coffee shop loading
  */
 
-import { createCoffeeCard, setupCardListeners } from "../components/coffee-card.js";
-import { geocodeCity, searchPlacesByBounds } from "../api.js";
-import { centerMapOnCity } from "../map.js";
+
+import { geocodeCity} from "../api.js";
 
 /**
  * Render home page with search bar, cards grid, and map
