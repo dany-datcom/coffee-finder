@@ -26,19 +26,15 @@ function router() {
   renderFooter();
 
   // Render page content based on current route
-  switch (hash) {
-    case "home":
-      renderHomePage();
-      break;
-    case "favorites":
-      renderFavoritesPage();
-      break;
-    case "about":
-      renderAboutPage();
-      break;
-    default:
-      renderHomePage();
-  }
+  const routes = {
+    home: renderHomePage,
+    favorites: renderFavoritesPage,
+    about: renderAboutPage,
+  };
+
+  const renderPage = routes[hash] || renderHomePage;
+
+  renderPage();
 }
 
 // Listen for hash changes to trigger navigation

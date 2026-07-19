@@ -4,16 +4,16 @@
  * Handles location search, geocoding, and dynamic coffee shop loading
  */
 
-
+import { setLoading } from "../utils/loading.js";
 import { geocodeCity} from "../api.js";
 
 /**
- * Render home page with search bar, cards grid, and map
+ * Create Home page HTML template
+ * Keeps page structure separated from application logic
+ * @returns {String} Home page HTML
  */
-export async function renderHomePage() {
-  const app = document.getElementById("app");
-
-  app.innerHTML = `
+function createHomeTemplate() {
+  return `
     <div class="home-container">
       <!-- Search section for location input -->
       <div class="search-section">
@@ -51,6 +51,15 @@ export async function renderHomePage() {
       </div>
     </template>
   `;
+}
+
+/**
+ * Render home page with search bar, cards grid, and map
+ */
+export async function renderHomePage() {
+  const app = document.getElementById("app");
+
+  app.innerHTML = createHomeTemplate();
 
   // Initialize search form
   setupSearch();
@@ -69,24 +78,22 @@ export async function renderHomePage() {
  */
 function setupSearch() {
   const form = document.getElementById("search-form");
+  
+  form.addEventListener("submit", handleSearch); 
+}
+
+async function handleSearch(e) {
+  e.preventDefault();
   const input = document.getElementById("search-input");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const query = input.value.trim();
+  const query = input.value.trim();
     if (!query) return;
-
-    console.log("🔎 Searching for:", query);
-
+      console.log("🔎 Searching for:", query);
     try {
-      showLoader();
-
+      setLoading(true);
       // Geocode city name to get coordinates
       const cityCoords = await geocodeCity(query);
-      if (!cityCoords) {
-        alert("❌ City not found");
-        hideLoader();
+        if (!cityCoords) {
+          alert("❌ City not found");
         return;
       }
 
@@ -98,9 +105,9 @@ function setupSearch() {
     } catch (error) {
       console.error("❌ Error:", error);
     } finally {
-      hideLoader();
+      setLoading(false);
     }
-  });
+  
 }
 
 /**
@@ -108,7 +115,7 @@ function setupSearch() {
  */
 async function loadInitialCoffees() {
   try {
-    showLoader();
+    setLoading(true);
     const { searchPlaces } = await import("../api.js");
     const places = await searchPlaces("San Jose");
 
@@ -120,22 +127,6 @@ async function loadInitialCoffees() {
   } catch (error) {
     console.error("❌ Error loading coffees:", error);
   } finally {
-    hideLoader();
+    setLoading(false);
   }
-}
-
-/**
- * Show loading spinner
- */
-function showLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.classList.remove("hidden");
-}
-
-/**
- * Hide loading spinner
- */
-function hideLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.classList.add("hidden");
 }

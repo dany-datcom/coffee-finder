@@ -122,7 +122,7 @@ function createMarker(place, index, bounds) {
 
   marker.addListener("click", () => {
     mapState.infoWindows.forEach(iw => iw.close());
-    infoWindow.open(map, marker);
+    infoWindow.open(mapState.map, marker);
   });
 
   mapState.markers.push(marker);
@@ -217,8 +217,8 @@ async function performBoundsSearch() {
 export function centerMapOnCity(lat, lng, zoomLevel = 13) {
   console.log(`🎯 Centering map on: ${lat}, ${lng}`);
   
-  map.setCenter({ lat, lng });
-  map.setZoom(zoomLevel);
+  mapState.map.setCenter({ lat, lng });
+  mapState.map.setZoom(zoomLevel);
   
   // Map bounds_changed listener will trigger search automatically
 }
@@ -261,6 +261,7 @@ export function addMarkers(places, shouldAutoCenter = true) {
  */
 export function clearMap() {
   clearMarkersAndInfoWindows();
+  console.log("✅ Map cleared");
 }
 
-  console.log("✅ Map cleared");
+  
