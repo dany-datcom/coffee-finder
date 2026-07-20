@@ -16,6 +16,26 @@ async function fetchJson(url) {
   return response.json();
 }  
 
+/**
+ * Get the user's current location from the browser.
+ * @returns {Promise<{lat:number,lng:number}|null>}
+ */
+export function getCurrentLocation() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+      },
+      (error) => {
+        reject(error);
+      }
+    );
+  });
+}
+
 function mapCoffeeShop(place, idx) {
   return {
     id: idx,

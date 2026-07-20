@@ -5,7 +5,7 @@
  */
 
 import { setLoading } from "../utils/loading.js";
-import { geocodeCity} from "../api.js";
+import { geocodeCity, getCurrentLocation} from "../api.js";
 
 /**
  * Create Home page HTML template
@@ -65,11 +65,19 @@ export async function renderHomePage() {
   setupSearch();
 
   // Initialize Google Map
-  const { createMap } = await import("../map.js");
+  const { createMap,centerMapOnCity } = await import("../map.js");
   createMap();
 
+  try {
+    const location = await getCurrentLocation();
+    console.log("📍 User location:", location);
+    centerMapOnCity(location.lat, location.lng);
+  } catch (error){
+    console.warn("Location not available:", error.message);
+  }
+
   // Load initial coffee shops for San Jose
-  await loadInitialCoffees();
+  
 }
 
 /**
@@ -110,23 +118,3 @@ async function handleSearch(e) {
   
 }
 
-/**
- * Load initial coffee shops for San Jose on app start
- */
-async function loadInitialCoffees() {
-  try {
-    setLoading(true);
-    const { searchPlaces } = await import("../api.js");
-    const places = await searchPlaces("San Jose");
-
-    const { renderPlaces } = await import("../ui.js");
-    renderPlaces(places);
-
-    const { addMarkers } = await import("../map.js");
-    addMarkers(places);
-  } catch (error) {
-    console.error("❌ Error loading coffees:", error);
-  } finally {
-    setLoading(false);
-  }
-}

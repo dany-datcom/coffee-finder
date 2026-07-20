@@ -14,15 +14,14 @@ import { saveFavorite } from "./storage.js";
  */
 export function renderPlaces(places) {
   const container = document.getElementById("results");
-
-  // Clear existing cards but preserve loader
-  const oldCards = container.querySelectorAll(".place-card");
+    // Clear existing cards but preserve loader
+  const oldCards = container.querySelectorAll(".place-card, .empty-state");
   oldCards.forEach(card => card.remove());
 
   // Display empty state if no results found
   if (!places || places.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 2rem; color: #666;">
+      <div class="empty-state" style="text-align: center; padding: 2rem; color: #666;">
         <p>😢 No coffee shops found. Try a different search!</p>
       </div>
     `;
