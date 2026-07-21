@@ -13,44 +13,108 @@ import { geocodeCity, getCurrentLocation} from "../api.js";
  * @returns {String} Home page HTML
  */
 function createHomeTemplate() {
-  return `
-    <div class="home-container">
-      <!-- Search section for location input -->
-      <div class="search-section">
-        <form id="search-form" class="search-form">
-          <input 
-            type="text" 
-            id="search-input" 
-            placeholder="ENTER LOCATION" 
-            class="search-input"
-            required 
-          />
-          <button type="submit" class="btn-search">🔍</button>
-        </form>
-      </div>
+return `
+<main class="home">
 
-      <div class="home-content">
-        <!-- Center: Coffee cards grid with loader -->
-        <section class="cards-container">
-          <div id="results" class="results-grid">
-            <div id="loader" class="loader hidden"></div>
-          </div>
-        </section>
+  <section class="hero">
 
-        <!-- Right: Interactive Google Map -->
-        <section id="map" class="map-container"></section>
-      </div>
+    <div class="hero-content">
+
+      <span class="hero-badge">
+        ☕ Find your perfect workspace
+      </span>
+
+      <h1 class="hero-title">
+        Find your next place to work,
+        study and enjoy great coffee.
+      </h1>
+
+      <p class="hero-description">
+        Discover cafés loved by developers,
+        students, freelancers and digital nomads.
+      </p>
+
+      <form id="search-form" class="search-form">
+
+      <div class="search-wrapper">
+
+      <span class="search-icon">
+      🔍
+      </span>
+
+    <input
+      id="search-input"
+      class="search-input"
+      type="text"
+      placeholder="Search by city..."
+      required
+    />
+
+  </div>
+
+  <button
+    class="search-button"
+    type="submit"
+  >
+    Explore
+  </button>
+
+</form>
+
     </div>
 
-    <!-- Template for dynamically generating coffee cards -->
-    <template id="place-template">
-      <div class="place-card">
-        <h3 class="place-name"></h3>
-        <p class="place-address"></p>
-        <button class="favorite-btn">⭐ Save</button>
+  </section>
+
+  <section class="explore-layout">
+
+    <section class="results-container">
+
+      <div id="results" class="results-grid">
+
+        <div id="loader" class="loader hidden"></div>
+
       </div>
-    </template>
-  `;
+
+    </section>
+
+    <aside
+      id="map"
+      class="map-container"
+    >
+    </aside>
+
+  </section>
+
+</main>
+
+<template id="place-template">
+  <article class="place-card">
+
+    <div class="place-card-header">
+      <h3 class="place-name"></h3>
+
+      <button
+        class="favorite-btn"
+        aria-label="Save favorite">
+        ♡
+      </button>
+    </div>
+
+    <p class="place-address"></p>
+
+    <div class="place-tags">
+      <span class="place-tag">
+        ☕ Coffee Shop
+      </span>
+
+      <span class="place-tag location-tag">
+        📍 Costa Rica
+      </span>
+    </div>
+
+  </article>
+</template>
+`;
 }
 
 /**

@@ -1,0 +1,90 @@
+:root {
+    /* Colors */
+    --color-primary: #064E3B;
+    --color-primary-hover: #065F46;
+
+    --color-secondary: #F8E7C9;
+    --color-secondary-dark: #EFD8AE;
+
+    --color-background: #FFFCF7;
+    --color-surface: #FFFFFF;
+
+    --color-text: #1F2937;
+    --color-text-light: #6B7280;
+
+    --color-border: #E5E7EB;
+
+    --color-success: #10B981;
+    --color-danger: #DC2626;
+    --color-warning: #F59E0B;
+
+    /* Typography */
+    --font-heading: "Poppins", sans-serif;
+    --font-body: "Inter", sans-serif;
+
+    --font-size-xs: .75rem;
+    --font-size-sm: .875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 2rem;
+    --font-size-3xl: 3rem;
+    
+    /* Font Weights */
+    --font-light:300;
+    --font-normal:400;
+    --font-medium:500;
+    --font-semibold:600;
+    --font-bold:700;
+
+    /* Spacing */
+    --space-xs:4px;
+    --space-sm:8px;
+    --space-md:16px;
+    --space-lg:24px;
+    --space-xl:32px;
+    --space-2xl:48px;
+    --space-3xl:64px;
+
+    /* Border Radius */
+    --radius-sm:6px;
+    --radius-md:12px;
+    --radius-lg:20px;
+    --radius-round:999px;
+
+    /* Shadows */
+    --shadow-sm:0 2px 6px rgba(0,0,0,.08);
+    --shadow-md:0 8px 24px rgba(0,0,0,.10);
+    --shadow-lg:0 18px 40px rgba(0,0,0,.14);
+
+    /* Transitions */
+    --transition-fast:.2s ease;
+    --transition-normal:.3s ease;
+    --transition-slow:.45s ease;
+
+    /*Layout*/
+    --navbar-height:72px;
+    --container-width:1400px;
+
+    /* Z-Index */
+    --z-dropdown:100;
+
+    --z-sticky:200;
+
+    --z-overlay:500;
+
+    --z-modal:900;
+
+    --z-toast:1000;
+
+    /*Container*/
+    --container-sm:640px;
+
+    --container-md:768px;
+
+    --container-lg:1024px;
+
+    --container-xl:1280px;
+
+    --container-2xl:1400px;
+}
