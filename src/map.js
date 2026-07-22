@@ -13,7 +13,8 @@ const mapState = {
   map: null,
   markers: [],
   infoWindows: [],
-  searchTimeout: null
+  searchTimeout: null,
+  markerLookup: new Map()
 };
 
 /**
@@ -89,6 +90,8 @@ function clearMarkersAndInfoWindows() {
 
   mapState.infoWindows.forEach(infoWindow => infoWindow.close());
   mapState.infoWindows = [];
+
+  mapState.markerLookup.clear();
 }
 
 /**
@@ -123,6 +126,12 @@ function createMarker(place, index, bounds) {
   const marker = new google.maps.Marker(markerOptions);
 
   const infoWindow = createInfoWindow(place);
+
+  mapState.markerLookup.set(place.name, {
+      marker,
+      infoWindow,
+      place
+    });
 
   marker.addListener("click", () => {
     mapState.infoWindows.forEach(iw => iw.close());
@@ -266,6 +275,35 @@ export function addMarkers(places, shouldAutoCenter = true) {
 export function clearMap() {
   clearMarkersAndInfoWindows();
   console.log("✅ Map cleared");
+}
+
+/**
+ * Focus map on a coffee shop
+ * Centers the map and opens its InfoWindow
+ * @param {Object} place
+ */
+export function focusPlace(place) {
+
+  const item = mapState.markerLookup.get(place.name);
+
+  if (!item) {
+    console.warn(`Marker not found for ${place.name}`);
+    return;
+  }
+
+  const { marker, infoWindow } = item;
+
+  // Close any previously opened InfoWindows
+  mapState.infoWindows.forEach(iw => iw.close());
+
+  // Center map
+  mapState.map.panTo(marker.getPosition());
+
+  // Smooth zoom
+  mapState.map.setZoom(17);
+
+  // Open popup
+  infoWindow.open(mapState.map, marker);
 }
 
   

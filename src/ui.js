@@ -3,7 +3,7 @@
  * Handles dynamic rendering of coffee shop cards
  * Displays loading states and empty states
  */
-
+import { focusPlace } from "./map.js";
 import { saveFavorite } from "./storage.js";
 
 /**
@@ -48,13 +48,17 @@ function setupFavoriteButton(clone, place) {
   // Estado inicial
   button.textContent = "♡";
 
-  button.addEventListener("click", () => {
-    saveFavorite(place);
+  button.addEventListener("click", (event) => {
 
-    button.textContent = "♥";
-    button.disabled = true;
-    button.classList.add("saved");
-  });
+  event.stopPropagation();
+
+  saveFavorite(place);
+
+  button.textContent = "♥";
+  button.disabled = true;
+  button.classList.add("saved");
+
+});
 }
 
 /**
@@ -74,6 +78,12 @@ function getLocation(place) {
  */
 function createPlaceCard(template, place) {
   const clone = template.content.cloneNode(true);
+
+  const card = clone.querySelector(".place-card");
+
+  card.addEventListener("click", () => {
+    focusPlace(place);
+  });
 
   clone.querySelector(".place-name").textContent = place.name;
 
