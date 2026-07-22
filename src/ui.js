@@ -3,7 +3,7 @@
  * Handles dynamic rendering of coffee shop cards
  * Displays loading states and empty states
  */
-
+import { focusPlace } from "./map.js";
 import { saveFavorite } from "./storage.js";
 
 /**
@@ -29,10 +29,10 @@ function renderEmptyState(container) {
   container.insertAdjacentHTML(
     "beforeend",
     `
-      <div class="empty-state">
+      <article class="empty-state">
         <h3>No coffee shops found</h3>
         <p>Try searching another location.</p>
-      </div>
+      </article>
     `
   );
 }
@@ -48,13 +48,26 @@ function setupFavoriteButton(clone, place) {
   // Estado inicial
   button.textContent = "♡";
 
-  button.addEventListener("click", () => {
-    saveFavorite(place);
+  button.addEventListener("click", (event) => {
 
-    button.textContent = "♥";
-    button.disabled = true;
-    button.style.opacity = "0.6";
-  });
+  event.stopPropagation();
+
+  saveFavorite(place);
+
+  button.textContent = "♥";
+  button.disabled = true;
+  button.classList.add("saved");
+
+});
+}
+
+/**
+ * Get simplified location from full address
+ * @param {Object} place
+ * @returns {string}
+ */
+function getLocation(place) {
+  return place.address?.split(",").at(-1)?.trim() || "Costa Rica";
 }
 
 /**
@@ -66,16 +79,19 @@ function setupFavoriteButton(clone, place) {
 function createPlaceCard(template, place) {
   const clone = template.content.cloneNode(true);
 
+  const card = clone.querySelector(".place-card");
+
+  card.addEventListener("click", () => {
+    focusPlace(place);
+  });
+
   clone.querySelector(".place-name").textContent = place.name;
 
   clone.querySelector(".place-address").textContent =
     place.address || "Address not available";
 
-  const location =
-    place.address?.split(",").at(-1)?.trim() || "Costa Rica";
-
   clone.querySelector(".location-tag").textContent =
-    `📍 ${location}`;
+  `📍 ${getLocation(place)}`;
 
   setupFavoriteButton(clone, place);
 

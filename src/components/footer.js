@@ -14,42 +14,46 @@ export function renderFooter() {
   footer.innerHTML = `
     <div class="footer-container">
       <!-- Footer top section with content -->
-      <div class="footer-content">
+      <div class="footer-grid">
         
         <!-- About section -->
-        <div class="footer-section">
-          <h3>☕ CODE & COFFEE FINDER</h3>
-          <p>Find the perfect coffee shop to code, study, or work from. Discover amazing places with great WiFi and atmosphere.</p>
+        <div class="footer-brand">
+          <h3>☕ Code & Coffee</h3>
+          <p>Find your next place to work,
+            study and enjoy great coffee.</p>
         </div>
 
         <!-- Quick links section -->
-        <div class="footer-section">
+        <div class="footer-navigation">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="#home">Find Coffee</a></li>
-            <li><a href="#favorites">My Favorites</a></li>
-            <li><a href="#about">About Us</a></li>
+            <li><a href="#home">Discover</a></li>
+            <li><a href="#favorites">Favorites</a></li>
+            <li><a href="#about">About</a></li>
           </ul>
         </div>
 
         <!-- Features section -->
-        <div class="footer-section">
-          <h4>Features</h4>
+        <div class="footer-tech">
+          <h4>Built With</h4>
           <ul>
-            <li>🗺️ Interactive Map</li>
-            <li>🔍 Search by Location</li>
-            <li>❤️ Save Favorites</li>
-            <li>📍 Distance Display</li>
+            <li>JavaScript</li>
+            <li>Vite</li>
+            <li>Google Maps</li>
+            <li>Geoapify</li>
           </ul>
         </div>
 
         <!-- Contact & Social section -->
-        <div class="footer-section">
+        <div class="footer-contact">
           <h4>Connect</h4>
-          <p>Built with ☕ and 💻</p>
+          <p>Made with ❤️ in Costa Rica</p>
           <div class="social-links">
             <a href="https://github.com/dany-datcom" target="_blank" class="social-link" title="GitHub">
               <span>GitHub</span>
+            </a>
+            <a href="https://www.linkedin.com/in/dany-jimenez-051672b4/" target="_blank" class="social-link" title="LinkedIn">
+              <span>LinkedIn</span>
             </a>
           </div>
         </div>
@@ -59,10 +63,10 @@ export function renderFooter() {
       <!-- Footer bottom with copyright -->
       <div class="footer-bottom">
         <div class="footer-copyright">
-          <p>&copy; ${currentYear} Code & Coffee Finder. All rights reserved.</p>
+          <p>&copy; ${currentYear} Code & Coffee.</p>
         </div>
         <div class="footer-credits">
-          <p>Made by <strong>Dany Jimenez</strong> | Powered by Google Maps & Geoapify</p>
+          <p> Designed & Developed by Dany Jimenez</p>
         </div>
       </div>
     </div>
@@ -76,7 +80,7 @@ export function renderFooter() {
  * Setup footer link event listeners for SPA navigation
  */
 function setupFooterLinks() {
-  document.querySelectorAll(".footer-section a[href^='#']").forEach(link => {
+  document.querySelectorAll(".footer-navigation a").forEach(link => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
       const page = link.getAttribute("href").substring(1);

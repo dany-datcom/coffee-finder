@@ -4,34 +4,76 @@
  * Highlights current page in navigation menu
  */
 
-export function renderNavbar(currentPage = "home") {
-  const navbar = document.getElementById("navbar");
-
-  navbar.innerHTML = `
+function createNavbarTemplate(currentPage) {
+  return `
     <div class="navbar-container">
-      <!-- Application logo and branding -->
-      <div class="navbar-logo">
+
+      <!-- Brand -->
+      <div class="navbar-brand">
+
         <a href="#home" class="logo-link">
+
           <span class="logo-icon">☕</span>
-          <span class="logo-text">CODE & COFFEE FINDER</span>
+
+          <div class="logo-content">
+
+            <h1 class="logo-title">
+              Code & Coffee
+            </h1>
+
+            <span class="logo-subtitle">
+              Find your next place to work.
+            </span>
+
+          </div>
+
         </a>
+
       </div>
 
-      <!-- Main navigation menu -->
+      <!-- Navigation -->
       <nav class="navbar-menu">
-        <a href="#home" class="nav-link ${currentPage === "home" ? "active" : ""}">
-          FIND COFFEE
+
+        <a
+          href="#home"
+          class="nav-link ${currentPage === "home" ? "active" : ""}">
+          Discover
         </a>
-        <a href="#favorites" class="nav-link ${currentPage === "favorites" ? "active" : ""}">
-          MY FAVORITES
+
+        <a
+          href="#favorites"
+          class="nav-link ${currentPage === "favorites" ? "active" : ""}">
+          Favorites
         </a>
-        <a href="#about" class="nav-link ${currentPage === "about" ? "active" : ""}">
-          ABOUT
+
+        <a
+          href="#about"
+          class="nav-link ${currentPage === "about" ? "active" : ""}">
+          About
         </a>
+
       </nav>
+
+      <!-- Tagline -->
+      <div class="navbar-tagline">
+
+        Work • Study • Coffee
+
+      </div>
+
     </div>
   `;
+}
 
+function setupNavbarEvents() {
+  // registra todos los listeners
+}
+
+export function renderNavbar(currentPage = "home") {
+  const navbar = document.getElementById("navbar");  
+
+  navbar.innerHTML = createNavbarTemplate(currentPage);
+  setupNavbarEvents();
   // Navigation link event listeners
   document.querySelectorAll(".nav-link").forEach(link => {
     link.addEventListener("click", (e) => {

@@ -4,6 +4,7 @@
  * Implements dynamic search when user moves or zooms the map
  */
 /* global google */
+import { mapTheme } from "./mapTheme.js";
 import { searchPlacesByBounds } from "./api.js";
 import { renderPlaces } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
@@ -12,7 +13,8 @@ const mapState = {
   map: null,
   markers: [],
   infoWindows: [],
-  searchTimeout: null
+  searchTimeout: null,
+  markerLookup: new Map()
 };
 
 /**
@@ -24,13 +26,7 @@ export function createMap() {
   mapState.map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 9.9281, lng: -84.0907 },
     zoom: 13,
-    styles: [
-      {
-        featureType: "poi",
-        elementType: "labels",
-        stylers: [{ visibility: "off" }]
-      }
-    ]
+    styles: mapTheme
   });
 
   console.log("✅ Map created");
@@ -94,6 +90,8 @@ function clearMarkersAndInfoWindows() {
 
   mapState.infoWindows.forEach(infoWindow => infoWindow.close());
   mapState.infoWindows = [];
+
+  mapState.markerLookup.clear();
 }
 
 /**
@@ -111,14 +109,29 @@ function createMarker(place, index, bounds) {
     return;
   }
 
-  const marker = new google.maps.Marker({
+  const markerOptions = {
     position: { lat, lng },
     map: mapState.map,
-    title: place.name,
-    label: String(index + 1)
-  });
+    title: place.name
+ 
+  };
+   markerOptions.icon = {
+  url: "public/assets/icons/coffee-marker.svg",
+
+  scaledSize: new google.maps.Size(42, 52),
+  anchor: new google.maps.Point(21, 52)
+  };
+  
+
+  const marker = new google.maps.Marker(markerOptions);
 
   const infoWindow = createInfoWindow(place);
+
+  mapState.markerLookup.set(place.name, {
+      marker,
+      infoWindow,
+      place
+    });
 
   marker.addListener("click", () => {
     mapState.infoWindows.forEach(iw => iw.close());
@@ -262,6 +275,35 @@ export function addMarkers(places, shouldAutoCenter = true) {
 export function clearMap() {
   clearMarkersAndInfoWindows();
   console.log("✅ Map cleared");
+}
+
+/**
+ * Focus map on a coffee shop
+ * Centers the map and opens its InfoWindow
+ * @param {Object} place
+ */
+export function focusPlace(place) {
+
+  const item = mapState.markerLookup.get(place.name);
+
+  if (!item) {
+    console.warn(`Marker not found for ${place.name}`);
+    return;
+  }
+
+  const { marker, infoWindow } = item;
+
+  // Close any previously opened InfoWindows
+  mapState.infoWindows.forEach(iw => iw.close());
+
+  // Center map
+  mapState.map.panTo(marker.getPosition());
+
+  // Smooth zoom
+  mapState.map.setZoom(17);
+
+  // Open popup
+  infoWindow.open(mapState.map, marker);
 }
 
   
