@@ -4,6 +4,7 @@
  * Implements dynamic search when user moves or zooms the map
  */
 /* global google */
+import { mapTheme } from "./mapTheme.js";
 import { searchPlacesByBounds } from "./api.js";
 import { renderPlaces } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
@@ -24,13 +25,7 @@ export function createMap() {
   mapState.map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 9.9281, lng: -84.0907 },
     zoom: 13,
-    styles: [
-      {
-        featureType: "poi",
-        elementType: "labels",
-        stylers: [{ visibility: "off" }]
-      }
-    ]
+    styles: mapTheme
   });
 
   console.log("✅ Map created");
@@ -111,12 +106,21 @@ function createMarker(place, index, bounds) {
     return;
   }
 
-  const marker = new google.maps.Marker({
+  const markerOptions = {
     position: { lat, lng },
     map: mapState.map,
-    title: place.name,
-    label: String(index + 1)
-  });
+    title: place.name
+ 
+  };
+   markerOptions.icon = {
+  url: "public/assets/icons/coffee-marker.svg",
+
+  scaledSize: new google.maps.Size(42, 52),
+  anchor: new google.maps.Point(21, 52)
+  };
+  
+
+  const marker = new google.maps.Marker(markerOptions);
 
   const infoWindow = createInfoWindow(place);
 

@@ -29,10 +29,10 @@ function renderEmptyState(container) {
   container.insertAdjacentHTML(
     "beforeend",
     `
-      <div class="empty-state">
+      <article class="empty-state">
         <h3>No coffee shops found</h3>
         <p>Try searching another location.</p>
-      </div>
+      </article>
     `
   );
 }
@@ -53,8 +53,17 @@ function setupFavoriteButton(clone, place) {
 
     button.textContent = "♥";
     button.disabled = true;
-    button.style.opacity = "0.6";
+    button.classList.add("saved");
   });
+}
+
+/**
+ * Get simplified location from full address
+ * @param {Object} place
+ * @returns {string}
+ */
+function getLocation(place) {
+  return place.address?.split(",").at(-1)?.trim() || "Costa Rica";
 }
 
 /**
@@ -71,11 +80,8 @@ function createPlaceCard(template, place) {
   clone.querySelector(".place-address").textContent =
     place.address || "Address not available";
 
-  const location =
-    place.address?.split(",").at(-1)?.trim() || "Costa Rica";
-
   clone.querySelector(".location-tag").textContent =
-    `📍 ${location}`;
+  `📍 ${getLocation(place)}`;
 
   setupFavoriteButton(clone, place);
 

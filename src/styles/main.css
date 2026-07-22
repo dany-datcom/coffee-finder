@@ -1,3 +1,7 @@
+
+@import "../styles/navbar.css";
+@import "../styles/hero.css";
+@import "../styles/cards.css";
 @import "../styles/variables.css";
 @import "../styles/base.css";
 @import "../styles/layout.css";
