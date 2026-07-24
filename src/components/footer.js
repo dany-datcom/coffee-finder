@@ -37,10 +37,22 @@ export function renderFooter() {
         <div class="footer-tech">
           <h4>Built With</h4>
           <ul>
-            <li>JavaScript</li>
-            <li>Vite</li>
-            <li>Google Maps</li>
-            <li>Geoapify</li>
+            <li class="tech-item">
+              <span class="tech-icon"></span>  
+              <span>JavaScript</span>
+            </li>
+            <li class="tech-item">
+              <span class="tech-icon"></span>  
+              <span>Vite</span>
+            </li>
+            <li class="tech-item">
+              <span class="tech-icon"></span>  
+              <span>Google Maps</span>
+            </li>
+            <li class="tech-item">
+              <span class="tech-icon"></span>  
+              <span>Geoapify</span>
+            </li>
           </ul>
         </div>
 

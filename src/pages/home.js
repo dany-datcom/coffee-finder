@@ -30,10 +30,20 @@ function createHomeTemplate() {
 
     </section>
 
-    <aside
-      id="map"
-      class="map-container"
-    >
+    <aside class="map-panel">
+      <div class="map-header">
+        <h2>🗺 Coffee Map</h2>
+        <p>Explore nearby coffee shops</p>
+        <div class="map-stats">
+          <span id="results-count">0 coffees</span>
+          <span id="current-location"> in current location</span>
+        </div>
+      </div>
+
+      <div 
+        id="map" 
+        class="map-container">
+      </div>
     </aside>
 
   </section>
@@ -43,29 +53,61 @@ function createHomeTemplate() {
 <template id="place-template">
   <article class="place-card">
 
-    <div class="place-card-header">
-      <h3 class="place-name"></h3>
+    <div class="place-status">
+        Coffee Shop
+    </div>
 
-      <button
-        class="favorite-btn"
-        aria-label="Save favorite">
-        ♡
-      </button>
+    <div class="place-card-header">
+
+        <h3 class="place-name"></h3>
+
+        <button
+            class="favorite-btn"
+            aria-label="Save favorite">
+            ♡
+        </button>
+
     </div>
 
     <p class="place-address"></p>
 
     <div class="place-tags">
-      <span class="place-tag">
-        ☕ Coffee Shop
-      </span>
 
-      <span class="place-tag location-tag">
-        📍 Costa Rica
-      </span>
+        <span class="place-tag">
+            ☕ Coffee Shop
+        </span>
+
+        <span class="place-tag location-tag">
+            📍 Costa Rica
+        </span>
+
     </div>
 
-  </article>
+    <div class="place-meta">
+
+        <span class="meta-item">
+            📍 Verified Location
+        </span>
+
+        <span class="meta-item">
+            🗺 Google Maps
+        </span>
+
+    </div>
+
+    <div class="place-actions">
+
+        <button class="direction-btn">
+            🧭 Directions
+        </button>
+
+        <button class="share-btn">
+            📤 Share
+        </button>
+
+    </div>
+
+</article>
 </template>
 `;
 }

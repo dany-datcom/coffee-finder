@@ -4,9 +4,10 @@
  * Implements dynamic search when user moves or zooms the map
  */
 /* global google */
+
 import { mapTheme } from "./mapTheme.js";
 import { searchPlacesByBounds } from "./api.js";
-import { renderPlaces } from "./ui.js";
+import { renderPlaces,updateMapStatus,highlightPlace } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
 
 const mapState = {
@@ -28,7 +29,7 @@ export function createMap() {
     zoom: 13,
     styles: mapTheme
   });
-
+  
   console.log("✅ Map created");
   setupMapListeners();
 }
@@ -136,6 +137,7 @@ function createMarker(place, index, bounds) {
   marker.addListener("click", () => {
     mapState.infoWindows.forEach(iw => iw.close());
     infoWindow.open(mapState.map, marker);
+    highlightPlace(place.name);
   });
 
   mapState.markers.push(marker);
@@ -186,6 +188,26 @@ function fitMarkersOnMap(bounds) {
 function updateSearchResults(places) {
   renderPlaces(places);
   addMarkers(places, false);
+  updateMapStats(places.length);
+
+  const center = mapState.map.getCenter();
+  updateMapStatus(
+    `${center.lat().toFixed(3)}, ${center.lng().toFixed(3)}`,
+    places.length
+  );
+}
+
+function updateMapStats(total){
+
+    const counter = document.getElementById("results-count");
+
+    if(counter){
+
+        counter.textContent =
+            `${total} Coffee shop${total !== 1 ? "s" : ""}`;
+
+    }
+
 }
 /**
  * Perform search based on current map bounds
@@ -204,6 +226,9 @@ async function performBoundsSearch() {
     setLoading(true);
     // Search for coffee shops in current map view
     const places = await searchPlacesByBounds(boundsObj);
+
+    console.log("Bounds:", boundsObj);
+console.log("Places:", places);
 
     console.log(`📍 ${places.length} coffee shops found`);
 
@@ -233,7 +258,9 @@ export function centerMapOnCity(lat, lng, zoomLevel = 13) {
   mapState.map.setCenter({ lat, lng });
   mapState.map.setZoom(zoomLevel);
   
-  // Map bounds_changed listener will trigger search automatically
+  google.maps.event.addListenerOnce(mapState.map, "idle", () => {
+    performBoundsSearch();
+  });
 }
 
 /**

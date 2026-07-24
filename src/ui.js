@@ -29,10 +29,15 @@ function renderEmptyState(container) {
   container.insertAdjacentHTML(
     "beforeend",
     `
-      <article class="empty-state">
+      <div class="empty-state">
+        <div class="empty-icon">☕</div>
         <h3>No coffee shops found</h3>
-        <p>Try searching another location.</p>
-      </article>
+        <p>
+          Try another location, move the map,
+          or zoom out to discover more places.
+        </p>
+
+      </div>
     `
   );
 }
@@ -61,6 +66,18 @@ function setupFavoriteButton(clone, place) {
 });
 }
 
+function setupDirectionButton(clone, place) {
+  const button = clone.querySelector(".direction-btn");
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const lat = place.geocodes.main.latitude;
+    const lng = place.geocodes.main.longitude;
+
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, 
+      "_blank");
+  });
+}
+
 /**
  * Get simplified location from full address
  * @param {Object} place
@@ -80,6 +97,7 @@ function createPlaceCard(template, place) {
   const clone = template.content.cloneNode(true);
 
   const card = clone.querySelector(".place-card");
+  card.dataset.place = place.name;
 
   card.addEventListener("click", () => {
     focusPlace(place);
@@ -94,8 +112,22 @@ function createPlaceCard(template, place) {
   `📍 ${getLocation(place)}`;
 
   setupFavoriteButton(clone, place);
+    card.addEventListener("click", async () => {
+    activateCard(card);
+    focusPlace(place);
+  });
+
+  setupDirectionButton(clone, place);
 
   return clone;
+}
+
+function activateCard(card) {
+  document
+    .querySelectorAll(".place-card")
+    .forEach(item => item.classList.remove("active-card")); 
+
+  card.classList.add("active-card");
 }
 
 /**
@@ -120,4 +152,29 @@ export function renderPlaces(places) {
   });
 
   console.log(`✅ ${places.length} cards rendered`);
+}
+
+export function updateMapStatus(location, total) {
+  const locationText = document.querySelector(".map-location");
+  const resultsText = document.querySelector(".map-results");
+
+  if (locationText) {
+    locationText.textContent = `📍 ${location}`;
+  }
+  if (resultsText) {
+    resultsText.textContent = `${total} Coffee shops found`;
+  }
+}
+
+export function highlightPlace(placeName) {
+  document
+    .querySelectorAll(".place-card")
+    .forEach(card => card.classList.remove("active-card"));
+
+    const card = document.querySelector(
+      `[data-place="${placeName}"]`
+    );
+    if (!card) return;
+    card.classList.add("active-card");
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
 }

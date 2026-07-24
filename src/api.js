@@ -146,21 +146,24 @@ export async function searchPlacesByBounds(bounds) {
     }
     
     // Filter results to only include shops within visible map bounds
-    const cafesInBounds = searchData.features.filter(place => {
-      const lat = place.properties.lat;
-      const lng = place.properties.lon;
-      
-      const isInBounds = lat >= bounds.south && lat <= bounds.north &&
-                        lng >= bounds.west && lng <= bounds.east;
-      
-      return isInBounds;
-    });
-    
-    console.log(`✅ ${cafesInBounds.length} coffee shops within visible map area`);
-    
-    // Transform results to application format
-    return cafesInBounds.map(mapCoffeeShop);
+    // Filter results to only include shops within visible map bounds
+const cafesInBounds = searchData.features.filter(place => {
+  const lat = place.properties.lat;
+  const lng = place.properties.lon;
 
+  const isInBounds =
+    lat >= bounds.south &&
+    lat <= bounds.north &&
+    lng >= bounds.west &&
+    lng <= bounds.east;
+
+  return isInBounds;
+});
+
+console.log(`✅ ${cafesInBounds.length} coffee shops within visible map area`);
+
+// Transform results to application format
+return cafesInBounds.map(mapCoffeeShop);
   
     
   } catch (error) {
