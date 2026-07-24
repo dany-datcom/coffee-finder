@@ -7,6 +7,7 @@
 import { setLoading } from "../utils/loading.js";
 import { geocodeCity, getCurrentLocation} from "../api.js";
 import { createHero } from "../components/hero.js";
+import { setUserLocation } from "../state/appState.js";
 
 /**
  * Create Home page HTML template
@@ -85,9 +86,9 @@ function createHomeTemplate() {
 
     <div class="place-meta">
 
-        <span class="meta-item">
-            📍 Verified Location
-        </span>
+        <span class="meta-item distance-tag">
+  📍 
+</span>
 
         <span class="meta-item">
             🗺 Google Maps
@@ -130,6 +131,7 @@ export async function renderHomePage() {
   try {
     const location = await getCurrentLocation();
     console.log("📍 User location:", location);
+    setUserLocation(location);
     centerMapOnCity(location.lat, location.lng);
   } catch (error){
     console.warn("Location not available:", error.message);

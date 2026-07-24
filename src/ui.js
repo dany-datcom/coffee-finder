@@ -3,8 +3,11 @@
  * Handles dynamic rendering of coffee shop cards
  * Displays loading states and empty states
  */
-import { focusPlace } from "./map.js";
+import { focusPlace,highlightMarker } from "./map.js";
 import { saveFavorite } from "./storage.js";
+import { initializeIcons } from "./icons/icons.js";
+import { getUserLocation } from "./state/appState.js";
+import { calculateDistance, formatDistance } from "./utils/distance.js";
 
 /**
  * Remove all rendered cards and empty state
@@ -103,6 +106,10 @@ function createPlaceCard(template, place) {
     focusPlace(place);
   });
 
+  card.addEventListener("click", () => {
+    highlightMarker(place.name);
+  });
+
   clone.querySelector(".place-name").textContent = place.name;
 
   clone.querySelector(".place-address").textContent =
@@ -116,6 +123,13 @@ function createPlaceCard(template, place) {
     activateCard(card);
     focusPlace(place);
   });
+
+  const distance = clone.querySelector(".distance-tag");
+
+if (distance && place.distance) {
+  
+  distance.textContent = `📍 ${formatDistance(place.distance)}`;
+}
 
   setupDirectionButton(clone, place);
 
@@ -136,7 +150,7 @@ function activateCard(card) {
  */
 export function renderPlaces(places) {
   const container = document.getElementById("results");
-
+  console.log(getUserLocation());
   clearResults(container);
 
   if (!places || places.length === 0) {
@@ -146,12 +160,21 @@ export function renderPlaces(places) {
 
   const template = document.getElementById("place-template");
 
-  places.forEach(place => {
-    const card = createPlaceCard(template, place);
-    container.appendChild(card);
-  });
+  const userLocation = getUserLocation();
+
+places.forEach(place => {
+
+  if (userLocation) {
+    place.distance = calculateDistance(userLocation, place);
+  }
+
+  const card = createPlaceCard(template, place);
+  container.appendChild(card);
+});
 
   console.log(`✅ ${places.length} cards rendered`);
+
+  initializeIcons();
 }
 
 export function updateMapStatus(location, total) {

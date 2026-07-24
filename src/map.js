@@ -154,11 +154,21 @@ function createMarker(place, index, bounds) {
 function createInfoWindow(place) {
   return new google.maps.InfoWindow({
     content: `
-      <div style="padding: 10px; max-width: 200px;">
-        <h3 style="margin: 0 0 5px 0;">${place.name}</h3>
-        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+      <div class="map-popup">
+        <div class="popup-badge">
+          ☕ Coffee Shop
+        </div>
+        <h3 
+          class="popup-title">${place.name}
+        </h3>
+        <p class="popup-address">
           ${place.address}
         </p>
+        <a class="popup-button"
+        target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${place.geocodes.main.latitude},${place.geocodes.main.longitude}"
+        >
+         🧭 Directions
+        </a>
       </div>
     `
   });
@@ -331,6 +341,17 @@ export function focusPlace(place) {
 
   // Open popup
   infoWindow.open(mapState.map, marker);
+}
+
+export function highlightMarker(placeName) {
+  const item = mapState.markerLookup.get(placeName);
+  if (!item) return;
+
+  item.marker.setAnimation(google.maps.Animation.BOUNCE);
+
+  setTimeout(() => {
+    item.marker.setAnimation(null);
+  }, 700);  
 }
 
   
