@@ -59,7 +59,7 @@ function setupRemoveButtons() {
       const favorites = getFavorites();
       
       // Get the ID of the favorite to remove
-      const placeId = favorites[index].id;
+const placeId = favorites[index].id;
       
       console.log(`🗑️ Removing favorite with ID: ${placeId}`);
       

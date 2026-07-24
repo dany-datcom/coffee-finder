@@ -2,18 +2,13 @@
     /* Colors */
     --color-primary: #064E3B;
     --color-primary-hover: #065F46;
-
     --color-secondary: #F8E7C9;
     --color-secondary-dark: #EFD8AE;
-
     --color-background: #FFFCF7;
     --color-surface: #FFFFFF;
-
     --color-text: #1F2937;
     --color-text-light: #6B7280;
-
     --color-border: #E5E7EB;
-
     --color-success: #10B981;
     --color-danger: #DC2626;
     --color-warning: #F59E0B;
@@ -24,7 +19,6 @@
     /* Typography */
     --font-heading: "Poppins", sans-serif;
     --font-body: "Inter", sans-serif;
-
     --font-size-xs: .75rem;
     --font-size-sm: .875rem;
     --font-size-md: 1rem;

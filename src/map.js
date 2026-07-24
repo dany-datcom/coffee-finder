@@ -40,13 +40,11 @@ export function createMap() {
  * Uses debounce to prevent excessive API calls
  */
 function setupMapListeners() {
-  // Trigger search when user finishes dragging map
   mapState.map.addListener("dragend", () => {
     console.log("🖱️ User moved map");
     debouncedSearch();
   });
 
-  // Trigger search when user changes zoom level
   mapState.map.addListener("zoom_changed", () => {
     console.log("🔍 User changed zoom");
     debouncedSearch();
@@ -72,7 +70,6 @@ function debouncedSearch() {
  */
 function getMapBounds() {
   const bounds = mapState.map.getBounds();
-
   if (!bounds) {
     console.warn("⚠️ Map bounds not available yet");
     return null;
@@ -114,25 +111,23 @@ function createMarker(place, index, bounds) {
     position: { lat, lng },
     map: mapState.map,
     title: place.name
- 
   };
-   markerOptions.icon = {
-  url: "public/assets/icons/coffee-marker.svg",
 
-  scaledSize: new google.maps.Size(42, 52),
-  anchor: new google.maps.Point(21, 52)
+  markerOptions.icon = {
+    url: "public/assets/icons/coffee-marker.svg",
+
+    scaledSize: new google.maps.Size(42, 52),
+    anchor: new google.maps.Point(21, 52)
   };
   
 
   const marker = new google.maps.Marker(markerOptions);
-
   const infoWindow = createInfoWindow(place);
-
   mapState.markerLookup.set(place.name, {
-      marker,
-      infoWindow,
-      place
-    });
+    marker,
+    infoWindow,
+    place
+  });
 
   marker.addListener("click", () => {
     mapState.infoWindows.forEach(iw => iw.close());
@@ -167,7 +162,7 @@ function createInfoWindow(place) {
         <a class="popup-button"
         target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${place.geocodes.main.latitude},${place.geocodes.main.longitude}"
         >
-         🧭 Directions
+          🧭 Directions
         </a>
       </div>
     `
@@ -182,12 +177,10 @@ function fitMarkersOnMap(bounds) {
   if (mapState.markers.length > 1) {
     mapState.map.fitBounds(bounds);
 
-  } else if (mapState.markers.length === 1) {
-    mapState.map.setCenter(
-      mapState.markers[0].getPosition()
-    );
-
-    mapState.map.setZoom(16);
+  } 
+  else if (mapState.markers.length === 1) {
+    mapState.map.setCenter(mapState.markers[0].getPosition());
+     mapState.map.setZoom(16);
   }
 }
 
@@ -208,16 +201,11 @@ function updateSearchResults(places) {
 }
 
 function updateMapStats(total){
-
-    const counter = document.getElementById("results-count");
-
-    if(counter){
-
-        counter.textContent =
-            `${total} Coffee shop${total !== 1 ? "s" : ""}`;
-
-    }
-
+  const counter = document.getElementById("results-count");
+  if(counter){
+    counter.textContent =
+    `${total} Coffee shop${total !== 1 ? "s" : ""}`;
+  }
 }
 /**
  * Perform search based on current map bounds
@@ -238,16 +226,18 @@ async function performBoundsSearch() {
     const places = await searchPlacesByBounds(boundsObj);
 
     console.log("Bounds:", boundsObj);
-console.log("Places:", places);
+    console.log("Places:", places);
 
     console.log(`📍 ${places.length} coffee shops found`);
 
     // Update UI with new results
     updateSearchResults(places);
 
-  } catch (error) {
+  } 
+  catch (error) {
     console.error("❌ Bounds search error:", error);
-  } finally {
+  } 
+  finally {
     const loader = document.getElementById("loader");
     if (loader) {
       setLoading(false);
@@ -299,8 +289,8 @@ export function addMarkers(places, shouldAutoCenter = true) {
 
   // Auto-center map to show all markers
   if (shouldAutoCenter) {
-  fitMarkersOnMap(bounds);
-}
+    fitMarkersOnMap(bounds);
+  }
 
   console.log(`✅ ${mapState.markers.length} markers added`);
 }

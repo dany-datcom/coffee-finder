@@ -15,6 +15,7 @@ import { calculateDistance, formatDistance } from "./utils/distance.js";
  * @param {HTMLElement} container
  */
 function clearResults(container) {
+  
   const oldCards = container.querySelectorAll(".place-card");
   oldCards.forEach(card => card.remove());
 
@@ -22,12 +23,14 @@ function clearResults(container) {
   if (emptyState) {
     emptyState.remove();
   }
+
 }
 
 /**
  * Display empty state when no coffee shops are found
  * @param {HTMLElement} container
  */
+
 function renderEmptyState(container) {
   container.insertAdjacentHTML(
     "beforeend",
@@ -39,7 +42,6 @@ function renderEmptyState(container) {
           Try another location, move the map,
           or zoom out to discover more places.
         </p>
-
       </div>
     `
   );
@@ -52,32 +54,27 @@ function renderEmptyState(container) {
  */
 function setupFavoriteButton(clone, place) {
   const button = clone.querySelector(".favorite-btn");
-
-  // Estado inicial
+  
   button.textContent = "♡";
-
+  
   button.addEventListener("click", (event) => {
-
-  event.stopPropagation();
-
-  saveFavorite(place);
-
-  button.textContent = "♥";
-  button.disabled = true;
-  button.classList.add("saved");
-
-});
+    event.stopPropagation();
+    saveFavorite(place);
+    button.textContent = "♥";
+    button.disabled = true;
+    button.classList.add("saved");
+  });
 }
 
 function setupDirectionButton(clone, place) {
   const button = clone.querySelector(".direction-btn");
+  
   button.addEventListener("click", (event) => {
     event.stopPropagation();
     const lat = place.geocodes.main.latitude;
     const lng = place.geocodes.main.longitude;
-
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, 
-      "_blank");
+    "_blank");
   });
 }
 
@@ -86,6 +83,7 @@ function setupDirectionButton(clone, place) {
  * @param {Object} place
  * @returns {string}
  */
+
 function getLocation(place) {
   return place.address?.split(",").at(-1)?.trim() || "Costa Rica";
 }
@@ -113,7 +111,7 @@ function createPlaceCard(template, place) {
   clone.querySelector(".place-name").textContent = place.name;
 
   clone.querySelector(".place-address").textContent =
-    place.address || "Address not available";
+  place.address || "Address not available";
 
   clone.querySelector(".location-tag").textContent =
   `📍 ${getLocation(place)}`;
@@ -126,10 +124,9 @@ function createPlaceCard(template, place) {
 
   const distance = clone.querySelector(".distance-tag");
 
-if (distance && place.distance) {
-  
-  distance.textContent = `📍 ${formatDistance(place.distance)}`;
-}
+  if (distance && place.distance) {  
+    distance.textContent = `📍 ${formatDistance(place.distance)}`;
+  }
 
   setupDirectionButton(clone, place);
 
@@ -138,9 +135,8 @@ if (distance && place.distance) {
 
 function activateCard(card) {
   document
-    .querySelectorAll(".place-card")
-    .forEach(item => item.classList.remove("active-card")); 
-
+  .querySelectorAll(".place-card")
+  .forEach(item => item.classList.remove("active-card")); 
   card.classList.add("active-card");
 }
 
@@ -155,22 +151,22 @@ export function renderPlaces(places) {
 
   if (!places || places.length === 0) {
     renderEmptyState(container);
-    return;
+  return;
   }
 
   const template = document.getElementById("place-template");
 
   const userLocation = getUserLocation();
 
-places.forEach(place => {
+  places.forEach(place => {
 
-  if (userLocation) {
-    place.distance = calculateDistance(userLocation, place);
-  }
+    if (userLocation) {
+      place.distance = calculateDistance(userLocation, place);
+    }
 
-  const card = createPlaceCard(template, place);
-  container.appendChild(card);
-});
+    const card = createPlaceCard(template, place);
+    container.appendChild(card);
+  });
 
   console.log(`✅ ${places.length} cards rendered`);
 
@@ -191,13 +187,13 @@ export function updateMapStatus(location, total) {
 
 export function highlightPlace(placeName) {
   document
-    .querySelectorAll(".place-card")
-    .forEach(card => card.classList.remove("active-card"));
-
-    const card = document.querySelector(
-      `[data-place="${placeName}"]`
+  .querySelectorAll(".place-card")
+  .forEach(card => card.classList.remove("active-card"));
+  const card = document.querySelector(
+    `[data-place="${placeName}"]`
     );
-    if (!card) return;
-    card.classList.add("active-card");
-    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    
+  if (!card) return;
+  card.classList.add("active-card");
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
 }
