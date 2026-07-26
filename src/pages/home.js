@@ -7,13 +7,34 @@
 import { setLoading } from "../utils/loading.js";
 import { geocodeCity, getCurrentLocation} from "../api.js";
 import { createHero } from "../components/hero.js";
-import { setUserLocation } from "../state/appState.js";
+import { setUserLocation, getPlaces, setCurrentSort, getCurrentSort} from "../state/appState.js";
+import { sortPlaces } from "../utils/sorting.js";
+import { renderPlaces } from "../ui.js";
 
+
+function setupSorting() {
+
+  const select = document.getElementById("sort-select");
+
+  select.addEventListener("change", () => {
+
+    setCurrentSort(select.value);
+
+    const places = getPlaces();
+
+    const sorted = sortPlaces(places, getCurrentSort());
+
+    renderPlaces(sorted);
+
+  });
+
+}
 /**
  * Create Home page HTML template
  * Keeps page structure separated from application logic
  * @returns {String} Home page HTML
  */
+
 function createHomeTemplate() {
   return `
   <main class="home">
@@ -22,6 +43,25 @@ function createHomeTemplate() {
   <section class="explore-layout">
 
     <section class="results-container">
+
+    <div class="results-toolbar">
+  <label for="sort-select">
+    Sort by:
+  </label>
+  <select id="sort-select">
+    <option value="distance">
+      Nearest
+    </option>
+
+    <option value="farthest">
+      Farthest
+    </option>
+
+    <option value = "name">
+      Name (A-Z)
+    </option>
+  </select>
+</div>
 
       <div id="results" class="results-grid">
 
@@ -50,6 +90,7 @@ function createHomeTemplate() {
   </section>
 
 </main>
+
 
 <template id="place-template">
   <article class="place-card">
@@ -87,8 +128,12 @@ function createHomeTemplate() {
     <div class="place-meta">
 
         <span class="meta-item distance-tag">
-  📍 
-</span>
+        📍 
+      </span>
+
+      <span class="meta-item travel-time">
+      🚶
+      </span>
 
         <span class="meta-item">
             🗺 Google Maps
@@ -123,6 +168,8 @@ export async function renderHomePage() {
 
   // Initialize search form
   setupSearch();
+
+  setupSorting();
 
   // Initialize Google Map
   const { createMap,centerMapOnCity } = await import("../map.js");

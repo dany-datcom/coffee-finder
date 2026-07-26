@@ -7,7 +7,8 @@ import { focusPlace,highlightMarker } from "./map.js";
 import { saveFavorite } from "./storage.js";
 import { initializeIcons } from "./icons/icons.js";
 import { getUserLocation } from "./state/appState.js";
-import { calculateDistance, formatDistance } from "./utils/distance.js";
+import { formatDistance } from "./utils/distance.js";
+import { formatTravelTime } from "./utils/travelTime.js";
 
 /**
  * Remove all rendered cards and empty state
@@ -123,10 +124,16 @@ function createPlaceCard(template, place) {
   });
 
   const distance = clone.querySelector(".distance-tag");
-
   if (distance && place.distance) {  
     distance.textContent = `📍 ${formatDistance(place.distance)}`;
   }
+
+  const walking = clone.querySelector(".travel-time");
+  if (walking && place.walkingTime) {
+    walking.textContent = `🚶 ${formatTravelTime(place.walkingTime)}`;
+  }
+
+  
 
   setupDirectionButton(clone, place);
 
@@ -160,10 +167,7 @@ export function renderPlaces(places) {
 
   places.forEach(place => {
 
-    if (userLocation) {
-      place.distance = calculateDistance(userLocation, place);
-    }
-
+    
     const card = createPlaceCard(template, place);
     container.appendChild(card);
   });

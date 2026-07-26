@@ -9,6 +9,11 @@ import { mapTheme } from "./mapTheme.js";
 import { searchPlacesByBounds } from "./api.js";
 import { renderPlaces,updateMapStatus,highlightPlace } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
+import { setPlaces, getCurrentSort} from "./state/appState.js";
+import { sortPlaces } from "./utils/sorting.js";
+import { calculateDistance } from "./utils/distance.js";
+import { estimateTravelTime } from "./utils/travelTime.js";
+import { getUserLocation } from "./state/appState.js";
 
 const mapState = {
   map: null,
@@ -17,6 +22,7 @@ const mapState = {
   searchTimeout: null,
   markerLookup: new Map()
 };
+
 
 /**
  * Initialize Google Map instance
@@ -189,11 +195,15 @@ function fitMarkersOnMap(bounds) {
  * @param {Array} places - Coffee shops found
  */
 function updateSearchResults(places) {
+
   renderPlaces(places);
+
   addMarkers(places, false);
+
   updateMapStats(places.length);
 
   const center = mapState.map.getCenter();
+
   updateMapStatus(
     `${center.lat().toFixed(3)}, ${center.lng().toFixed(3)}`,
     places.length
@@ -225,12 +235,36 @@ async function performBoundsSearch() {
     // Search for coffee shops in current map view
     const places = await searchPlacesByBounds(boundsObj);
 
+    const userLocation = getUserLocation();
+
+if (userLocation) {
+
+    places.forEach(place => {
+
+        place.distance = calculateDistance(userLocation, place);
+
+        place.walkingTime = estimateTravelTime(place.distance);
+
+    });
+
+}
+
+const sorted = sortPlaces(
+    places,
+    getCurrentSort()
+);
+
+setPlaces(sorted);
+updateSearchResults(sorted);
+
+
     console.log("Bounds:", boundsObj);
     console.log("Places:", places);
 
     console.log(`📍 ${places.length} coffee shops found`);
 
     // Update UI with new results
+    setPlaces(places);
     updateSearchResults(places);
 
   } 
