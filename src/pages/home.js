@@ -94,6 +94,8 @@ function createHomeTemplate() {
 
 <template id="place-template">
   <article class="place-card">
+  
+
 
     <div class="place-status">
         Coffee Shop
@@ -104,13 +106,8 @@ function createHomeTemplate() {
         <h3 class="place-name"></h3>
 
         <button
-    class="action-btn favorite-btn"
-    aria-label="Favorite">
-
-    <i
-        class="icon"
-        data-lucide="heart">
-    </i>
+        class="action-btn favorite-btn"
+        aria-label="Favorite">
 
 </button>
 
@@ -148,31 +145,8 @@ function createHomeTemplate() {
 
     </div>
 
-    <div class="place-actions">
+    <div class="action-bar-container"></div>
 
-    <button
-    class="action-btn direction-btn"
-    aria-label="Directions">
-
-    <i
-        class="icon"
-        data-lucide="navigation">
-    </i>
-
-    </button>
-
-    <button
-    class="action-btn share-btn"
-    aria-label="Share">
-
-    <i
-        class="icon"
-        data-lucide="share-2">
-    </i>
-
-</button>
-
-</div>
 
 </article>
 </template>
