@@ -104,10 +104,15 @@ function createHomeTemplate() {
         <h3 class="place-name"></h3>
 
         <button
-            class="favorite-btn"
-            aria-label="Save favorite">
-            ♡
-        </button>
+    class="action-btn favorite-btn"
+    aria-label="Favorite">
+
+    <i
+        class="icon"
+        data-lucide="heart">
+    </i>
+
+</button>
 
     </div>
 
@@ -127,13 +132,15 @@ function createHomeTemplate() {
 
     <div class="place-meta">
 
-        <span class="meta-item distance-tag">
-        📍 
-      </span>
+    <span class="meta-item distance-tag">
+        <i class="meta-icon" data-lucide="map-pin"></i>
+        <span class="distance-value"></span>
+    </span>
 
-      <span class="meta-item travel-time">
-      🚶
-      </span>
+    <span class="meta-item travel-time">
+        <i class="meta-icon" data-lucide="footprints"></i>
+        <span class="travel-time-value"></span>
+    </span>
 
         <span class="meta-item">
             🗺 Google Maps
@@ -143,15 +150,29 @@ function createHomeTemplate() {
 
     <div class="place-actions">
 
-        <button class="direction-btn">
-            🧭 Directions
-        </button>
+    <button
+    class="action-btn direction-btn"
+    aria-label="Directions">
 
-        <button class="share-btn">
-            📤 Share
-        </button>
+    <i
+        class="icon"
+        data-lucide="navigation">
+    </i>
 
-    </div>
+    </button>
+
+    <button
+    class="action-btn share-btn"
+    aria-label="Share">
+
+    <i
+        class="icon"
+        data-lucide="share-2">
+    </i>
+
+</button>
+
+</div>
 
 </article>
 </template>

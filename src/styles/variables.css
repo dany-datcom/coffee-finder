@@ -13,6 +13,15 @@
     --color-danger: #DC2626;
     --color-warning: #F59E0B;
 
+    /*Icons */
+    --icon-color: var(--color-text-light);
+    --icon-color-hover: var(--color-primary);
+    --icon-color-activated: var(--color-primary);
+
+    --icon-size-xs: 16px;
+    --icon-size-sm: 20px;
+    --icon-size-md: 24px;
+
     /* Focus */
     --focus-ring: 0 0 0 4px rgba(6, 78, 59, 0.12);
 
@@ -58,6 +67,12 @@
     --transition-fast:.2s ease;
     --transition-normal:.3s ease;
     --transition-slow:.45s ease;
+
+    /*Motion*/
+    --hover-scale:1.04;
+    --active-scale:.98;
+    --card-hover-y: -6px;
+    --icon-hover-rotate: 8deg;
 
     /*Layout*/
     --navbar-height:72px;

@@ -145,7 +145,8 @@
     margin-top:var(--space-lg);
 }
 
-.direction-btn{
+.direction-btn,
+.share-btn{
     width:100%;
     padding:var(--space-md);
     border:none;

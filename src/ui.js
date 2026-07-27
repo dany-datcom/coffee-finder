@@ -123,14 +123,14 @@ function createPlaceCard(template, place) {
     focusPlace(place);
   });
 
-  const distance = clone.querySelector(".distance-tag");
+  const distance = clone.querySelector(".distance-value");
   if (distance && place.distance) {  
-    distance.textContent = `📍 ${formatDistance(place.distance)}`;
+    distance.textContent = ` ${formatDistance(place.distance)}`;
   }
 
-  const walking = clone.querySelector(".travel-time");
+  const walking = clone.querySelector(".travel-time-value");
   if (walking && place.walkingTime) {
-    walking.textContent = `🚶 ${formatTravelTime(place.walkingTime)}`;
+    walking.textContent = ` ${formatTravelTime(place.walkingTime)}`;
   }
 
   
