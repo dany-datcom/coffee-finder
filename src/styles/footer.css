@@ -48,3 +48,101 @@
 .footer a:hover {
     color: var(--color-surface);
 }
+
+/* ==========================
+   Footer Technology Logos
+========================== */
+
+.footer-tech ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+}
+
+
+.tech-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+
+    font-size: .95rem;
+    color: var(--color-secondary-dark);
+}
+
+
+/* Technology logos */
+
+.tech-logo,
+.tech-icon {
+
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    object-fit: contain;
+
+}
+
+
+
+
+
+
+/* Geoapify / generic icons */
+
+
+/* ==========================
+   Social Links
+========================== */
+
+.social-links {
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+
+}
+
+
+.social-link {
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    transition: 
+        transform var(--transition-fast),
+        background var(--transition-fast);
+
+}
+
+
+.social-link img {
+
+    width: 24px;
+    height: 24px;
+
+    object-fit: contain;
+
+}
+
+
+.social-link:hover {
+
+    transform: translateY(-3px);
+    background: var(--color-background);
+
+}

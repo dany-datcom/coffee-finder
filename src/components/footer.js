@@ -3,6 +3,26 @@
  * Displays application footer with links, social media, and copyright information
  * Appears on all pages of the application
  */
+import { techIcons } from "../icons/tech-icons.js";
+
+
+export function initializeTechIcons(){
+
+  document
+    .querySelectorAll(".tech-icon")
+    .forEach(icon => {
+
+      const name = icon.dataset.tech;
+
+      if(techIcons[name]){
+        icon.innerHTML = techIcons[name];
+      }
+
+    });
+
+}
+
+initializeTechIcons();
 
 export function renderFooter() {
   const footer = document.getElementById("footer");
@@ -35,40 +55,84 @@ export function renderFooter() {
 
         <!-- Features section -->
         <div class="footer-tech">
-          <h4>Built With</h4>
-          <ul>
-            <li class="tech-item">
-              <span class="tech-icon"></span>  
-              <span>JavaScript</span>
-            </li>
-            <li class="tech-item">
-              <span class="tech-icon"></span>  
-              <span>Vite</span>
-            </li>
-            <li class="tech-item">
-              <span class="tech-icon"></span>  
-              <span>Google Maps</span>
-            </li>
-            <li class="tech-item">
-              <span class="tech-icon"></span>  
-              <span>Geoapify</span>
-            </li>
-          </ul>
-        </div>
+  <h4>Built With</h4>
+
+  <ul>
+
+    <li class="tech-item">
+
+  <img 
+    class="tech-logo"
+    src="assets/javascript.svg"
+    alt="JavaScript logo">
+
+  <span>JavaScript</span>
+
+</li>
+
+
+    <li class="tech-item">
+<img 
+class="tech-logo"
+src="assets/vite.svg"
+alt="Vite">
+<span>Vite</span>
+</li>
+
+
+    <li class="tech-item">
+<img 
+class="tech-logo"
+src="assets/google.svg"
+alt="Google Maps">
+<span>Google Maps</span>
+</li>
+
+
+<li class="tech-item">
+<img 
+class="tech-logo"
+src="assets/geoapify.svg"
+alt="Geoapify">
+<span>Geoapify</span>
+</li>
+
+  </ul>
+
+</div>
 
         <!-- Contact & Social section -->
         <div class="footer-contact">
           <h4>Connect</h4>
           <p>Made with ❤️ in Costa Rica</p>
           <div class="social-links">
-            <a href="https://github.com/dany-datcom" target="_blank" class="social-link" title="GitHub">
-              <span>GitHub</span>
-            </a>
-            <a href="https://www.linkedin.com/in/dany-jimenez-051672b4/" target="_blank" class="social-link" title="LinkedIn">
-              <span>LinkedIn</span>
-            </a>
-          </div>
-        </div>
+
+<a 
+href="https://github.com/dany-datcom"
+target="_blank"
+rel="noopener noreferrer"
+class="social-link">
+
+<img 
+src="assets/github-icon.svg"
+alt="GitHub">
+
+</a>
+
+
+<a 
+href="https://www.linkedin.com/in/dany-jimenez-051672b4/"
+target="_blank"
+rel="noopener noreferrer"
+class="social-link">
+
+<img 
+src="assets/linkedin-icon.svg"
+alt="LinkedIn">
+
+</a>
+
+</div>
 
       </div>
 

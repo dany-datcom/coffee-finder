@@ -106,10 +106,15 @@ function createHomeTemplate() {
         <h3 class="place-name"></h3>
 
         <button
-        class="action-btn favorite-btn"
+        class="favorite-btn"
         aria-label="Favorite">
 
-</button>
+        <i
+            class="icon"
+            data-lucide="heart">
+        </i>
+
+    </button>
 
     </div>
 
@@ -118,12 +123,22 @@ function createHomeTemplate() {
     <div class="place-tags">
 
         <span class="place-tag">
-            ☕ Coffee Shop
-        </span>
+    <i
+        class="tag-icon"
+        data-lucide="coffee">
+    </i>
 
-        <span class="place-tag location-tag">
-            📍 Costa Rica
-        </span>
+     Coffee Shop
+</span>
+
+       <span class="place-tag location-tag">
+    <i
+        class="tag-icon"
+        data-lucide="map-pin">
+    </i>
+
+    Location
+</span>
 
     </div>
 
@@ -140,8 +155,13 @@ function createHomeTemplate() {
     </span>
 
         <span class="meta-item">
-            🗺 Google Maps
-        </span>
+    <i
+        class="meta-icon"
+        data-lucide="navigation">
+    </i>
+
+    Google Maps
+</span>
 
     </div>
 

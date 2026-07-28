@@ -4,12 +4,6 @@ export function createActionBar() {
         <div class="place-actions">
 
       <button
-        class="favorite-btn"
-        aria-label="Save favorite">
-        <i data-lucide="heart"></i>
-      </button>
-
-      <button
         class="direction-btn"
         aria-label="Open directions">
         <i data-lucide="navigation"></i>

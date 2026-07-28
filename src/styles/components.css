@@ -54,15 +54,10 @@
   font-weight:600;
 }
 
-.favorite-btn{
-  border:none;
-  background:none;
-  font-size:1.4rem;
-  cursor:pointer;
-  transition:.25s;
-  color:var(--color-primary);
+
+
+.tag-icon {
+    width: 16px;
+    height: 16px;
 }
 
-.favorite-btn:hover{
-  transform:scale(1.15);
-}
