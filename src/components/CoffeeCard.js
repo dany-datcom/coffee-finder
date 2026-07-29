@@ -5,12 +5,6 @@ import { saveFavorite } from "../storage.js";
 import { focusPlace, highlightMarker } from "../map.js";
 import {sharePlace} from "../services/shareService.js";
 
-function getLocation(place) {
-
-  return place.address?.split(",").at(-1)?.trim() 
-    || "Costa Rica";
-
-}
 
 /**
  * Activate selected card
@@ -100,6 +94,13 @@ function setupShareButton(clone, place) {
 export function createCoffeeCard (template, place) {
 
   const clone = template.content.cloneNode(true);
+
+
+  const locationText = clone.querySelector(".location-text");
+
+  if (locationText) {
+    locationText.textContent = ` ${place.city}, ${place.state}`;
+  }
 
 
   const card = clone.querySelector(".place-card");

@@ -119,7 +119,8 @@ export function updateMapStatus(location, total) {
   if (locationText) {
 
     locationText.textContent =
-      `${location}`;
+      `${location.city}, ${location.state}`;
+
 
   }
 

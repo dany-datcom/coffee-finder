@@ -5,7 +5,7 @@
  */
 
 import { setLoading } from "../utils/loading.js";
-import { geocodeCity, getCurrentLocation} from "../api.js";
+import { geocodeCity, getCurrentLocation, reverseGeocode,} from "../api.js";
 import { createHero } from "../components/hero.js";
 import { setUserLocation, getPlaces, setCurrentSort, getCurrentSort} from "../state/appState.js";
 import { sortPlaces } from "../utils/sorting.js";
@@ -86,12 +86,12 @@ function createHomeTemplate() {
         <p>Explore nearby coffee shops</p>
         <div class="map-stats">
 
-    <span class="map-results">
-        0 Coffee Shops
-    </span>
-
     <span class="map-location">
         Current Location
+    </span>
+
+    <span class="map-results">
+        0 Coffee Shops
     </span>
 
 </div>
@@ -146,13 +146,15 @@ function createHomeTemplate() {
      Coffee Shop
 </span>
 
-       <span class="place-tag location-tag">
+      <span class="place-tag location-tag">
     <i
         class="tag-icon"
         data-lucide="map-pin">
     </i>
 
-    Location
+    <span class="location-text">
+        Location
+    </span>
 </span>
 
     </div>
@@ -206,8 +208,6 @@ export async function renderHomePage() {
   createMap();
 
   try {
-    const location = await getCurrentLocation();
-    console.log("📍 User location:", location);
     setUserLocation(location);
     centerMapOnCity(location.lat, location.lng);
   } catch (error){

@@ -41,16 +41,27 @@ export function getCurrentLocation() {
 function mapCoffeeShop(place, idx) {
   return {
     id: idx,
+
     name: place.properties.name || "Untitled Café",
+
     address: place.properties.formatted || "Address not available",
+
+    city:
+      place.properties.city ||
+      place.properties.county ||
+      place.properties.district ||
+      "Unknown location",
+
+    state: place.properties.state || "",
+
     geocodes: {
       main: {
         latitude: place.properties.lat,
-        longitude: place.properties.lon
-       },
-     },
-  }; 
-}    
+        longitude: place.properties.lon,
+      },
+    },
+  };
+}
 /**
  * Search coffee shops by city name or query
  * Uses proximity bias towards Costa Rica
@@ -106,6 +117,9 @@ export async function geocodeCity(cityName) {
       lng: location.properties.lon,
       displayName: location.properties.city || location.properties.name
     };
+
+    
+    
     
     console.log(`✅ City found: ${coords.displayName} (${coords.lat}, ${coords.lng})`);
     return coords;
@@ -113,8 +127,32 @@ export async function geocodeCity(cityName) {
   } catch (error) {
     console.error("❌ Geocoding error:", error);
     return null;
+
+    
   }
+  
 }
+
+export async function reverseGeocode(lat, lng) {
+  
+  console.log("📍 reverseGeocode()", lat, lng);
+  
+  const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&limit=1&apiKey=${API_KEY}`;
+
+  const data = await fetchJson(url); 
+  if (!data.features || data.features.length === 0) {
+    return null;
+  }
+  const location = data.features[0];
+  const result = {
+    lat,
+    lng,
+    city: location.properties.city || location.properties.name,
+    state: location.properties.state || ""
+  };
+  console.log(Object.keys(location.properties));
+  return result;
+}  
 
 /**
  * Search coffee shops within map bounds

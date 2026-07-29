@@ -6,7 +6,7 @@
 /* global google */
 
 import { mapTheme } from "./mapTheme.js";
-import { searchPlacesByBounds } from "./api.js";
+import { searchPlacesByBounds,reverseGeocode } from "./api.js";
 import { renderPlaces,updateMapStatus,highlightPlace } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
 import { setPlaces, getCurrentSort} from "./state/appState.js";
@@ -194,20 +194,19 @@ function fitMarkersOnMap(bounds) {
  * Update UI and map with search results
  * @param {Array} places - Coffee shops found
  */
-function updateSearchResults(places) {
+async function updateSearchResults(places) {
 
-  renderPlaces(places);
 
-  addMarkers(places, false);
+const center = mapState.map.getCenter();
 
-  updateMapStats(places.length);
+const location = await reverseGeocode(
+    center.lat(),
+    center.lng()
+);
 
-  const center = mapState.map.getCenter();
 
-  updateMapStatus(
-    `${center.lat().toFixed(3)}, ${center.lng().toFixed(3)}`,
-    places.length
-  );
+updateMapStatus(location, places.length);
+
 }
 
 function updateMapStats(total){
