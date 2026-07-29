@@ -1,0 +1,60 @@
+/* ==========================
+   Favorite Button
+========================== */
+
+.favorite-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+    cursor: pointer;
+
+    transition: var(--transition-normal);
+}
+
+
+/* Hover button */
+
+.favorite-btn:hover {
+    background: var(--color-background);
+    transform: scale(1.08);
+}
+
+/* Saved state */
+
+.favorite-btn.saved {
+    opacity: .7;
+    cursor: default;
+}
+
+/* Optional: accessibility */
+
+.favorite-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.favorite-btn .icon {
+    color: var(--icon-color);
+    fill: transparent;
+    transition: 
+        transform var(--transition-fast),
+        color var(--transition-fast),
+        fill var(--transition-fast);
+}
+
+.favorite-btn:hover .icon {
+    color: var(--icon-color-hover);
+    transform: scale(1.1);
+}
+
+.favorite-btn.saved .icon {
+    color: var(--icon-color-activated);
+    fill: currentColor;
+}
