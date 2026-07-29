@@ -73,13 +73,28 @@ function createHomeTemplate() {
 
     <aside class="map-panel">
       <div class="map-header">
-        <h2>🗺 Coffee Map</h2>
+        <h2 class="map-title">
+
+    <i
+        class="title-icon"
+        data-lucide="map">
+    </i>
+
+    Coffee Map
+
+</h2>
         <p>Explore nearby coffee shops</p>
         <div class="map-stats">
-          <span id="results-count">0 coffees</span>
-          <span id="current-location"> in current location</span>
-        </div>
-      </div>
+
+    <span class="map-results">
+        0 Coffee Shops
+    </span>
+
+    <span class="map-location">
+        Current Location
+    </span>
+
+</div>
 
       <div 
         id="map" 

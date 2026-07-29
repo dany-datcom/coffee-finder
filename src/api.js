@@ -36,6 +36,8 @@ export function getCurrentLocation() {
   });
 }
 
+
+
 function mapCoffeeShop(place, idx) {
   return {
     id: idx,

@@ -3,6 +3,7 @@ import { formatTravelTime } from "../utils/travelTime.js";
 import { createActionBar } from "./actionBar.js";
 import { saveFavorite } from "../storage.js";
 import { focusPlace, highlightMarker } from "../map.js";
+import {sharePlace} from "../services/shareService.js";
 
 function getLocation(place) {
 
@@ -77,7 +78,21 @@ function setupDirectionButton(clone, place) {
   });
 }
 
+function setupShareButton(clone, place) {
 
+  const button = clone.querySelector(".share-btn");
+
+  if (!button) return;
+
+  button.addEventListener("click", async (event) => {
+
+    event.stopPropagation();
+
+    await sharePlace(place);
+
+  });
+
+}
 
 /**
  * Create coffee shop card
@@ -119,11 +134,6 @@ export function createCoffeeCard (template, place) {
 
 
 
-  clone.querySelector(".location-tag").textContent =
-    ` ${getLocation(place)}`;
-
-
-
   /*
     Create action buttons
     BEFORE adding events
@@ -142,6 +152,8 @@ export function createCoffeeCard (template, place) {
   setupFavoriteButton(clone, place);
 
   setupDirectionButton(clone, place);
+
+  setupShareButton(clone, place);
 
 
 
