@@ -129,7 +129,7 @@ function createMarker(place, index, bounds) {
 
   const marker = new google.maps.Marker(markerOptions);
   const infoWindow = createInfoWindow(place);
-  mapState.markerLookup.set(place.name, {
+  mapState.markerLookup.set(place.id, {
     marker,
     infoWindow,
     place
@@ -138,7 +138,7 @@ function createMarker(place, index, bounds) {
   marker.addListener("click", () => {
     mapState.infoWindows.forEach(iw => iw.close());
     infoWindow.open(mapState.map, marker);
-    highlightPlace(place.name);
+    focusPlace(place.id);
   });
 
   mapState.markers.push(marker);
@@ -196,17 +196,20 @@ function fitMarkersOnMap(bounds) {
  */
 async function updateSearchResults(places) {
 
+    renderPlaces(places);
 
-const center = mapState.map.getCenter();
+    addMarkers(places, false);
 
-const location = await reverseGeocode(
-    center.lat(),
-    center.lng()
-);
+    updateMapStats(places.length);
 
+    const center = mapState.map.getCenter();
 
-updateMapStatus(location, places.length);
+    const location = await reverseGeocode(
+        center.lat(),
+        center.lng()
+    );
 
+    updateMapStatus(location, places.length);
 }
 
 function updateMapStats(total){
@@ -221,6 +224,7 @@ function updateMapStats(total){
  * Queries coffee shops visible in current map viewport
  */
 async function performBoundsSearch() {
+  console.log("🚀 performBoundsSearch()");
   const boundsObj = getMapBounds();
 
   if (!boundsObj) {
@@ -256,15 +260,10 @@ const sorted = sortPlaces(
 setPlaces(sorted);
 updateSearchResults(sorted);
 
-
     console.log("Bounds:", boundsObj);
     console.log("Places:", places);
 
     console.log(`📍 ${places.length} coffee shops found`);
-
-    // Update UI with new results
-    setPlaces(places);
-    updateSearchResults(places);
 
   } 
   catch (error) {
@@ -287,6 +286,8 @@ updateSearchResults(sorted);
  */
 export function centerMapOnCity(lat, lng, zoomLevel = 13) {
   console.log(`🎯 Centering map on: ${lat}, ${lng}`);
+  console.log(typeof lat, lat);
+  console.log(typeof lng, lng);
   
   mapState.map.setCenter({ lat, lng });
   mapState.map.setZoom(zoomLevel);
@@ -344,7 +345,7 @@ export function clearMap() {
  */
 export function focusPlace(place) {
 
-  const item = mapState.markerLookup.get(place.name);
+  const item = mapState.markerLookup.get(place.id);
 
   if (!item) {
     console.warn(`Marker not found for ${place.name}`);
@@ -352,6 +353,26 @@ export function focusPlace(place) {
   }
 
   const { marker, infoWindow } = item;
+
+  // Remove previous active card
+  document.querySelectorAll(".place-card")
+    .forEach(card =>
+      card.classList.remove("active-card")
+    );
+
+  // Activate current card
+  const card = document.querySelector(
+    `[data-place-id="${place.id}"]`
+  );
+
+  if (card) {
+    card.classList.add("active-card");
+
+    card.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
 
   // Close any previously opened InfoWindows
   mapState.infoWindows.forEach(iw => iw.close());

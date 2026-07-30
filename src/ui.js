@@ -139,7 +139,7 @@ export function updateMapStatus(location, total) {
 /**
  * Highlight card from marker click
  */
-export function highlightPlace(placeName) {
+export function highlightPlace(id) {
 
 
   document
@@ -152,7 +152,8 @@ export function highlightPlace(placeName) {
 
   const card =
     document.querySelector(
-      `[data-place="${placeName}"]`
+      `[data-place-id="]`
+      
     );
 
 

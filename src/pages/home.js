@@ -208,8 +208,17 @@ export async function renderHomePage() {
   createMap();
 
   try {
+    const coordinates = await getCurrentLocation();
+
+    const location = await reverseGeocode(
+      coordinates.lat, 
+      coordinates.lng
+    );
     setUserLocation(location);
-    centerMapOnCity(location.lat, location.lng);
+    centerMapOnCity(
+      location.lat, 
+      location.lng
+    );
   } catch (error){
     console.warn("Location not available:", error.message);
   }
