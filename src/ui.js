@@ -4,69 +4,133 @@
  * Displays loading states and empty states
  */
 
+
 import { initializeIcons } from "./icons/icons.js";
-import { getUserLocation } from "./state/appState.js";
 import { createCoffeeCard } from "./components/CoffeeCard.js";
 
 
+
 /**
- * Remove all rendered cards and empty state
- * Keeps the loader element intact
+ * Remove rendered cards and empty state
+ * Keeps loader element intact
  */
 function clearResults(container) {
 
-  const oldCards = container.querySelectorAll(".place-card");
-  oldCards.forEach(card => card.remove());
 
-  const emptyState = container.querySelector(".empty-state");
+  if (!container) {
 
-  if (emptyState) {
-    emptyState.remove();
+    console.warn(
+      "⚠️ Results container not found"
+    );
+
+    return;
+
   }
+
+
+
+  container
+    .querySelectorAll(".place-card")
+    .forEach(card => {
+
+      card.remove();
+
+    });
+
+
+
+  const emptyState =
+    container.querySelector(
+      ".empty-state"
+    );
+
+
+
+  if(emptyState){
+
+    emptyState.remove();
+
+  }
+
+
 }
+
+
 
 
 /**
- * Display empty state when no coffee shops are found
+ * Display empty results message
  */
-function renderEmptyState(container) {
+function renderEmptyState(container){
+
 
   container.insertAdjacentHTML(
     "beforeend",
+
     `
-    <div class="empty-state">
-      <div class="empty-icon">☕</div>
-      <h3>No coffee shops found</h3>
-      <p>
-        Try another location, move the map,
-        or zoom out to discover more places.
-      </p>
-    </div>
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          ☕
+        </div>
+
+
+        <h3>
+          No coffee shops found
+        </h3>
+
+
+        <p>
+          Try another location, move the map,
+          or zoom out to discover more places.
+        </p>
+
+      </div>
     `
   );
+
+
 }
+
 
 
 
 /**
  * Render coffee shop cards
  */
-export function renderPlaces(places) {
+export function renderPlaces(places){
 
 
-  const container = document.getElementById("results");
+  const container =
+    document.getElementById(
+      "results"
+    );
 
 
-  console.log(getUserLocation());
+
+  if(!container){
+
+    console.error(
+      "❌ Results container missing"
+    );
+
+    return;
+
+  }
+
 
 
   clearResults(container);
 
 
 
-  if (!places || places.length === 0) {
+  if(!places || places.length === 0){
 
-    renderEmptyState(container);
+
+    renderEmptyState(
+      container
+    );
+
 
     return;
 
@@ -75,99 +139,171 @@ export function renderPlaces(places) {
 
 
   const template =
-    document.getElementById("place-template");
+    document.getElementById(
+      "place-template"
+    );
+
+
+
+  if(!template){
+
+    console.error(
+      "❌ Card template missing"
+    );
+
+    return;
+
+  }
 
 
 
   places.forEach(place => {
 
+
     const card =
-      createCoffeeCard(template, place);
+      createCoffeeCard(
+        template,
+        place
+      );
 
 
     container.appendChild(card);
+
 
   });
 
 
 
-  console.log(`✅ ${places.length} cards rendered`);
+  console.log(
+    `✅ ${places.length} cards rendered`
+  );
 
 
 
   initializeIcons();
 
+
 }
 
 
 
+
 /**
- * Update map status
+ * Update map information panel
  */
-export function updateMapStatus(location, total) {
+export function updateMapStatus(
+  location,
+  total
+){
 
 
   const locationText =
-    document.querySelector(".map-location");
+    document.querySelector(
+      ".map-location"
+    );
 
 
   const resultsText =
-    document.querySelector(".map-results");
+    document.querySelector(
+      ".map-results"
+    );
 
 
 
-  if (locationText) {
+  if(locationText){
 
-    locationText.textContent =
-      `${location.city}, ${location.state}`;
 
+    if(location){
+
+      locationText.textContent =
+        `${location.city ?? ""}
+        ${location.state ?? ""}`;
+
+    }
+    else{
+
+      locationText.textContent =
+        "Unknown location";
+
+    }
 
   }
 
 
-  if (resultsText) {
+
+
+  if(resultsText){
+
 
     resultsText.textContent =
-      `${total} Coffee shops found`;
+      `${total} Coffee shop${total !== 1 ? "s" : ""} found`;
+
 
   }
+
 
 }
 
 
 
+
+
 /**
- * Highlight card from marker click
+ * Highlight selected coffee shop card
  */
-export function highlightPlace(place) {
+export function highlightPlace(place){
+
+
+  if(!place){
+
+    return;
+
+  }
+
 
 
   document
     .querySelectorAll(".place-card")
-    .forEach(card =>
-      card.classList.remove("active-card")
-    );
+    .forEach(card => {
+
+      card.classList.remove(
+        "active-card"
+      );
+
+    });
+
 
 
 
   const card =
     document.querySelector(
       `[data-place-id="${place.id}"]`
-      
     );
 
 
 
-  if (!card) return;
+  if(!card){
+
+    return;
+
+  }
 
 
 
-  card.classList.add("active-card");
+
+  card.classList.add(
+    "active-card"
+  );
+
 
 
   card.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
+
+    behavior:"smooth",
+
+    block:"center"
+
   });
+  
 
 }

@@ -131,12 +131,16 @@ function createMarker(place, index, bounds) {
   const marker = new google.maps.Marker(markerOptions);
   const infoWindow = createInfoWindow(place);
   mapState.markerLookup.set(place.id, {
+  mapState.markerLookup.set(place.id, {
     marker,
     infoWindow,
     place
   });
 
   marker.addListener("click", () => {
+    mapState.infoWindows.forEach(iw => iw.close());
+    infoWindow.open(mapState.map, marker);
+    focusPlace(place.id);
     focusPlace(place);
   });
 
@@ -200,14 +204,24 @@ async function updateSearchResults(places) {
     addMarkers(places, false);
 
     updateMapStats(places.length);
+    renderPlaces(places);
 
-    const center = mapState.map.getCenter();
+    addMarkers(places, false);
+
+    updateMapStats(places.length);
+
+        const center = mapState.map.getCenter();
 
     const location = await reverseGeocode(
         center.lat(),
         center.lng()
     );
+    const location = await reverseGeocode(
+        center.lat(),
+        center.lng()
+    );
 
+    updateMapStatus(location, places.length);
     updateMapStatus(location, places.length);
 }
 
@@ -223,6 +237,7 @@ function updateMapStats(total){
  * Queries coffee shops visible in current map viewport
  */
 async function performBoundsSearch() {
+  console.log("🚀 performBoundsSearch()");
   console.log("🚀 performBoundsSearch()");
   const boundsObj = getMapBounds();
 
@@ -287,6 +302,8 @@ export function centerMapOnCity(lat, lng, zoomLevel = 13) {
   console.log(`🎯 Centering map on: ${lat}, ${lng}`);
   console.log(typeof lat, lat);
   console.log(typeof lng, lng);
+  console.log(typeof lat, lat);
+  console.log(typeof lng, lng);
   
   mapState.map.setCenter({ lat, lng });
   mapState.map.setZoom(zoomLevel);
@@ -345,6 +362,7 @@ export function clearMap() {
 export function focusPlace(place) {
 
   const item = mapState.markerLookup.get(place.id);
+  const item = mapState.markerLookup.get(place.id);
 
   if (!item) {
     console.warn(`Marker not found for ${place.name}`);
@@ -352,6 +370,26 @@ export function focusPlace(place) {
   }
 
   const { marker, infoWindow } = item;
+
+  // Remove previous active card
+  document.querySelectorAll(".place-card")
+    .forEach(card =>
+      card.classList.remove("active-card")
+    );
+
+  // Activate current card
+  const card = document.querySelector(
+    `[data-place-id="${place.id}"]`
+  );
+
+  if (card) {
+    card.classList.add("active-card");
+
+    card.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
 
   // Remove previous active card
   document.querySelectorAll(".place-card")
