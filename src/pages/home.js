@@ -198,6 +198,7 @@ export async function renderHomePage() {
 
   app.innerHTML = createHomeTemplate();
 
+
   // Initialize search form
   setupSearch();
 
@@ -213,7 +214,15 @@ export async function renderHomePage() {
   } catch (error){
     console.warn("Location not available:", error.message);
   }
-  
+   const coordinates = await getCurrentLocation();
+const location = await reverseGeocode(
+    coordinates.lat,
+    coordinates.lng
+);
+
+setUserLocation(location);
+
+centerMapOnCity(location.lat, location.lng);
 }
 
 /**

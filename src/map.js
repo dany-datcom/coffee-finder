@@ -105,6 +105,7 @@ function clearMarkersAndInfoWindows() {
  * @param {Object} bounds - Google Maps bounds instance
  */
 function createMarker(place, index, bounds) {
+  console.log("📍 Creating marker:", place.name);
   const lat = place.geocodes?.main?.latitude;
   const lng = place.geocodes?.main?.longitude;
 
@@ -119,12 +120,12 @@ function createMarker(place, index, bounds) {
     title: place.name
   };
 
-  markerOptions.icon = {
-    url: "public/assets/icons/coffee-marker.svg",
+  //markerOptions.icon = {
+    //url: "public/assets/icons/coffee-marker.svg",
 
-    scaledSize: new google.maps.Size(42, 52),
-    anchor: new google.maps.Point(21, 52)
-  };
+    //scaledSize: new google.maps.Size(42, 52),
+    //anchor: new google.maps.Point(21, 52)
+  //};
   
 
   const marker = new google.maps.Marker(markerOptions);
@@ -136,15 +137,14 @@ function createMarker(place, index, bounds) {
   });
 
   marker.addListener("click", () => {
-    mapState.infoWindows.forEach(iw => iw.close());
-    infoWindow.open(mapState.map, marker);
-    highlightPlace(place.name);
+    focusPlace(place);
   });
 
   mapState.markers.push(marker);
   mapState.infoWindows.push(infoWindow);
 
   bounds.extend({ lat, lng });
+  console.log("✅ Marker created:", marker);
 }
 
 /**
@@ -196,7 +196,9 @@ function fitMarkersOnMap(bounds) {
  */
 async function updateSearchResults(places) {
 
-
+renderPlaces(places);
+addMarkers(places, false);
+updateMapStats(places.length);
 const center = mapState.map.getCenter();
 
 const location = await reverseGeocode(
@@ -262,9 +264,6 @@ updateSearchResults(sorted);
 
     console.log(`📍 ${places.length} coffee shops found`);
 
-    // Update UI with new results
-    setPlaces(places);
-    updateSearchResults(places);
 
   } 
   catch (error) {
@@ -353,6 +352,12 @@ export function focusPlace(place) {
 
   const { marker, infoWindow } = item;
 
+  marker.setAnimation(google.maps.Animation.BOUNCE);
+
+  setTimeout(() => {
+    marker.setAnimation(null);
+  }, 700);
+
   // Close any previously opened InfoWindows
   mapState.infoWindows.forEach(iw => iw.close());
 
@@ -366,8 +371,8 @@ export function focusPlace(place) {
   infoWindow.open(mapState.map, marker);
 }
 
-export function highlightMarker(placeName) {
-  const item = mapState.markerLookup.get(placeName);
+export function highlightMarker(place) {
+  const item = mapState.markerLookup.get(place.id);
   if (!item) return;
 
   item.marker.setAnimation(google.maps.Animation.BOUNCE);

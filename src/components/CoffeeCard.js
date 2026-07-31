@@ -117,11 +117,7 @@ export function createCoffeeCard (template, place) {
 
 
   card.addEventListener("click", () => {
-
-    activateCard(card);
     focusPlace(place);
-    highlightMarker(place.name);
-
   });
 
 
