@@ -19,19 +19,27 @@ import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
 
+const MARKER_ICON = {
+  url: "/assets/coffee-marker.svg",
+  scaledSize: new google.maps.Size(42, 52),
+  anchor: new google.maps.Point(21, 52)
+};
+
+const ACTIVE_MARKER_ICON = {
+  url: "/assets/coffee-marker-active.svg",
+  scaledSize: new google.maps.Size(46, 56),
+  anchor: new google.maps.Point(23, 56)
+};
+
 
 const mapState = {
-
   map: null,
-
   markers: [],
-
   infoWindows: [],
-
   searchTimeout: null,
-
-  markerLookup: new Map()
-
+  markerLookup: new Map(),
+  activePlace: null,
+  mode: "explore"
 };
 
 
@@ -176,6 +184,48 @@ function clearMarkersAndInfoWindows(){
 
 }
 
+function enterFocusMode(place) {
+  mapState.activePlace = place;
+  mapState.mode = "focus";
+  console.log("☕ Enter Focus Mode:", place.name);
+}
+
+function exitFocusMode() {
+  mapState.activePlace = null;
+  mapState.mode = "explore";
+  console.log("☕ Exit Focus Mode");
+}
+
+function getVisiblePlaces(places) {
+
+  if (!mapState.isFocused) {
+    return places;
+  }
+
+  const exists = places.find(
+    place => place.id === mapState.activePlace.id
+  );
+
+  if (!exists) {
+
+    exitFocusMode();
+
+    return places;
+
+  }
+
+  return [exists];
+
+}
+
+function isMapInteractive() {
+
+    return mapState.mode === "explore";
+
+}
+
+
+
 
 
 /**
@@ -206,18 +256,17 @@ function createMarker(place, bounds){
 
 
   const marker =
-    new google.maps.Marker({
+  new google.maps.Marker({
 
-      position:{
-        lat,
-        lng
-      },
+    position: { lat, lng },
 
-      map: mapState.map,
+    map: mapState.map,
 
-      title: place.name
+    title: place.name,
 
-    });
+    icon: MARKER_ICON
+
+});
 
 
 
@@ -226,27 +275,27 @@ function createMarker(place, bounds){
 
 
 
-  marker.addListener(
-    "click",
-    () => {
+  marker.addListener("click", () => {
 
+  if (
+    mapState.mode === "focus" &&
+    mapState.activePlace.id !== place.id
+  ) {
+    return;
+  }
 
-      mapState.infoWindows.forEach(
-        window => window.close()
-      );
-
-
-      infoWindow.open(
-        mapState.map,
-        marker
-      );
-
-
-      focusPlace(place);
-
-
-    }
+  mapState.infoWindows.forEach(window =>
+    window.close()
   );
+
+  infoWindow.open(
+    mapState.map,
+    marker
+  );
+
+  focusPlace(place);
+
+});
 
 
 
@@ -280,24 +329,20 @@ function createMarker(place, bounds){
 /**
  * Create popup window
  */
-function createInfoWindow(place){
+function createInfoWindow(place) {
 
-
-  return new google.maps.InfoWindow({
+  const infoWindow = new google.maps.InfoWindow({
 
     content: `
-
       <div class="map-popup">
 
         <h3 class="popup-title">
           ${place.name}
         </h3>
 
-
         <p class="popup-address">
           ${place.location.city}, ${place.location.state}
         </p>
-
 
         <a
           class="popup-button"
@@ -305,18 +350,23 @@ function createInfoWindow(place){
           rel="noopener noreferrer"
           href="https://www.google.com/maps/dir/?api=1&destination=${place.geocodes.main.latitude},${place.geocodes.main.longitude}"
         >
-
           🧭 Open in Google Maps
-
         </a>
 
-
       </div>
-
     `
 
   });
 
+  infoWindow.addListener("closeclick", () => {
+
+    exitFocusMode();
+
+    performBoundsSearch();
+
+  });
+
+  return infoWindow;
 
 }
 
@@ -366,12 +416,12 @@ function fitMarkersOnMap(bounds){
  */
 async function updateSearchResults(places){
 
+const visiblePlaces = getVisiblePlaces(places);
 
-  renderPlaces(places);
-
+  renderPlaces(visiblePlaces);
 
   addMarkers(
-    places,
+    visiblePlaces,
     false
   );
 
@@ -434,6 +484,13 @@ function updateMapStats(total){
  */
 async function performBoundsSearch(){
 
+  if (!isMapInteractive()) {
+
+  console.log("🔒 Focus Mode - Search skipped");
+
+  return;
+
+}
 
   const boundsObj =
     getMapBounds();
@@ -587,7 +644,7 @@ export function addMarkers(
 
 
   clearMarkersAndInfoWindows();
-
+  
 
 
   if(!places || places.length === 0){
@@ -646,12 +703,24 @@ export function clearMap(){
 
 }
 
+function resetMarkerIcons() {
+
+  mapState.markerLookup.forEach(item => {
+    item.marker.setIcon(MARKER_ICON);
+  });
+
+}
+  function activateMarker(marker) {
+    marker.setIcon(ACTIVE_MARKER_ICON);
+  }
+
 
 
 /**
  * Focus selected coffee shop
  */
 export function focusPlace(place) {
+  enterFocusMode(place);
 
   const item = mapState.markerLookup.get(place.id);
 
@@ -660,6 +729,7 @@ export function focusPlace(place) {
   }
 
   const { marker, infoWindow } = item;
+  
 
   // Close any previously opened InfoWindows
   mapState.infoWindows.forEach(window => window.close());
@@ -679,8 +749,12 @@ export function focusPlace(place) {
     marker.setAnimation(null);
   }, 700);
 
+  resetMarkerIcons();
+activateMarker(marker);
+
   // Open popup
   infoWindow.open(mapState.map, marker);
+
 
   // Remove previous active card
   document
