@@ -46,13 +46,10 @@ function mapCoffeeShop(place, idx) {
 
     address: place.properties.formatted || "Address not available",
 
-    city:
-      place.properties.city ||
-      place.properties.county ||
-      place.properties.district ||
-      "Unknown location",
-
-    state: place.properties.state || "",
+    location: {
+        city: place.properties.city,
+        state: place.properties.state
+    },
 
     geocodes: {
       main: {

@@ -295,7 +295,7 @@ function createInfoWindow(place){
 
 
         <p class="popup-address">
-          ${place.address}
+          ${place.location.city}, ${place.location.state}
         </p>
 
 
@@ -651,94 +651,74 @@ export function clearMap(){
 /**
  * Focus selected coffee shop
  */
-export function focusPlace(place){
+export function focusPlace(place) {
 
+  const item = mapState.markerLookup.get(place.id);
 
-  const item =
-    mapState.markerLookup.get(
-      place.id
-    );
-
-
-
-  if(!item){
-
-    console.warn(
-      `Marker not found for ${place.name}`
-    );
-
-    return;
-
+  if (!item) {
+    throw new Error(`Marker not found for ${place.name}`);
   }
 
+  const { marker, infoWindow } = item;
 
+  // Close any previously opened InfoWindows
+  mapState.infoWindows.forEach(window => window.close());
 
-  const {
-    marker,
-    infoWindow
-  } = item;
+  // Center map on selected marker
+  mapState.map.panTo(marker.getPosition());
 
+  // Avoid unnecessary zoom changes
+  if (mapState.map.getZoom() < 17) {
+    mapState.map.setZoom(17);
+  }
 
+  // Highlight marker
+  marker.setAnimation(google.maps.Animation.BOUNCE);
 
+  setTimeout(() => {
+    marker.setAnimation(null);
+  }, 700);
+
+  // Open popup
+  infoWindow.open(mapState.map, marker);
+
+  // Remove previous active card
   document
     .querySelectorAll(".place-card")
-    .forEach(card => {
-
-      card.classList.remove(
-        "active-card"
-      );
-
-    });
-
-
-
-  const card =
-    document.querySelector(
-      `[data-place-id="${place.id}"]`
+    .forEach(card =>
+      card.classList.remove("active-card")
     );
 
+  // Highlight selected card
+  const card = document.querySelector(
+    `[data-place-id="${place.id}"]`
+  );
 
+  if (card) {
 
-  if(card){
+    card.classList.add("active-card");
 
-    card.classList.add(
-      "active-card"
-    );
+    const rect = card.getBoundingClientRect();
 
+const isVisible =
+  rect.top >= 0 &&
+  rect.bottom <= window.innerHeight;
 
-    card.scrollIntoView({
+if (!isVisible) {
+  card.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+}
 
-      behavior:"smooth",
-
-      block:"center"
-
+    requestAnimationFrame(() => {
+      card.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
     });
 
   }
-
-
-
-  mapState.infoWindows.forEach(
-    window => window.close()
-  );
-
-
-
-  mapState.map.panTo(
-    marker.getPosition()
-  );
-
-
-  mapState.map.setZoom(
-    17
-  );
-
-
-  infoWindow.open(
-    mapState.map,
-    marker
-  );
-
 
 }
 

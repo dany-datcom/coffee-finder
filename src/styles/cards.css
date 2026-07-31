@@ -5,14 +5,17 @@
     padding:var(--space-xl);
     box-shadow:var(--shadow-sm);
     border:1px solid var(--color-border);
-    transition:var(--transition-normal);
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;;
     display:flex;
     flex-direction:column;
     gap:var(--space-md);
     cursor:pointer;
 }
 
-.place-card:hover{
+.place-card.active-card:hover{
     transform:translateY(-6px);
     box-shadow:var(--shadow-md);
 }
@@ -101,8 +104,9 @@
 
 .active-card{
     border-color:var(--color-primary);
-    transform:translateY(-4px);
+    transform:translateY(-6px);
     box-shadow:var(--shadow-lg);
+    border-width:2px;
 }
 
 .place-card.active{
