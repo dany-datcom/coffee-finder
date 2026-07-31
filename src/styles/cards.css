@@ -103,10 +103,26 @@
 }
 
 .active-card{
+
     border-color:var(--color-primary);
-    transform:translateY(-6px);
-    box-shadow:var(--shadow-lg);
-    border-width:2px;
+
+    box-shadow:var(--shadow-lg),
+            var(--focus-ring);
+
+    transform:
+        translateY(var(--card-hover-y))
+        scale(var(--hover-scale));
+
+    transition:var(--transition-normal);
+
+}
+
+.inactive-card{
+
+    opacity:.55;
+
+    transition:var(--transition-normal);
+
 }
 
 .place-card.active{

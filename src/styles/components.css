@@ -13,10 +13,14 @@
   cursor: pointer;
 }
 
-.place-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-primary);
-  box-shadow:var(--shadow-md);
+.place-card:hover{
+
+    transform:
+        translateY(var(--card-hover-y))
+        scale(var(--hover-scale));
+
+    box-shadow:var(--shadow-md);
+
 }
 
 .place-card-header {

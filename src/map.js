@@ -759,9 +759,10 @@ activateMarker(marker);
   // Remove previous active card
   document
     .querySelectorAll(".place-card")
-    .forEach(card =>
-      card.classList.remove("active-card")
-    );
+    .forEach(card => {
+      card.classList.remove("active-card");
+      card.classList.add("inactive-card");
+    });
 
   // Highlight selected card
   const card = document.querySelector(
@@ -769,9 +770,9 @@ activateMarker(marker);
   );
 
   if (card) {
-
+    card.classList.remove("inactive-card");
     card.classList.add("active-card");
-
+    
     const rect = card.getBoundingClientRect();
 
 const isVisible =
@@ -784,13 +785,6 @@ if (!isVisible) {
     block: "center"
   });
 }
-
-    requestAnimationFrame(() => {
-      card.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-    });
 
   }
 
