@@ -6,21 +6,13 @@
     gap: var(--space-sm);
 }
 
-.popup-badge{
-    align-self: center;
-    padding:var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-round);
-    background-color: var(--color-primary);
-    color: var(--color-secondary);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-semibold);
-}
 
 .popup-title{
-    align-self: center;
+    text-align: center;
     margin: 0;
     font-size: var(--font-size-md);
     color: var(--color-text);
+    margin-bottom: var(--space-sm);
 }
 
 .popup-address{
@@ -31,6 +23,8 @@
 }
 
 .popup-button{
+    display:inline-block;
+    transition:background .2s ease;
     margin-top:var(--space-sm);
     text-align:center;
     text-decoration:none;
@@ -39,4 +33,8 @@
     background:var(--color-primary);
     color:white;
     font-weight:600;
+}
+
+.popup-button:hover{
+    opacity:.9;
 }

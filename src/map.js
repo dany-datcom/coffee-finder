@@ -7,7 +7,7 @@
 
 import { mapTheme } from "./mapTheme.js";
 import { searchPlacesByBounds,reverseGeocode } from "./api.js";
-import { renderPlaces,updateMapStatus,highlightPlace } from "./ui.js";
+import { renderPlaces,updateMapStatus, } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
 import { setPlaces, getCurrentSort} from "./state/appState.js";
 import { sortPlaces } from "./utils/sorting.js";
@@ -130,7 +130,7 @@ function createMarker(place, index, bounds) {
 
   const marker = new google.maps.Marker(markerOptions);
   const infoWindow = createInfoWindow(place);
-  mapState.markerLookup.set(place.name, {
+  mapState.markerLookup.set(place.id, {
     marker,
     infoWindow,
     place
@@ -156,19 +156,18 @@ function createInfoWindow(place) {
   return new google.maps.InfoWindow({
     content: `
       <div class="map-popup">
-        <div class="popup-badge">
-          ☕ Coffee Shop
-        </div>
         <h3 
           class="popup-title">${place.name}
         </h3>
         <p class="popup-address">
           ${place.address}
         </p>
-        <a class="popup-button"
-        target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${place.geocodes.main.latitude},${place.geocodes.main.longitude}"
+        <a  class="popup-button"
+    target="_blank"
+    rel="noopener noreferrer" 
+    href="https://www.google.com/maps/dir/?api=1&destination=${place.geocodes.main.latitude},${place.geocodes.main.longitude}"
         >
-          🧭 Directions
+          🧭 Open in Google Maps
         </a>
       </div>
     `
@@ -196,19 +195,20 @@ function fitMarkersOnMap(bounds) {
  */
 async function updateSearchResults(places) {
 
-renderPlaces(places);
-addMarkers(places, false);
-updateMapStats(places.length);
-const center = mapState.map.getCenter();
+    renderPlaces(places);
 
-const location = await reverseGeocode(
-    center.lat(),
-    center.lng()
-);
+    addMarkers(places, false);
 
+    updateMapStats(places.length);
 
-updateMapStatus(location, places.length);
+    const center = mapState.map.getCenter();
 
+    const location = await reverseGeocode(
+        center.lat(),
+        center.lng()
+    );
+
+    updateMapStatus(location, places.length);
 }
 
 function updateMapStats(total){
@@ -223,6 +223,7 @@ function updateMapStats(total){
  * Queries coffee shops visible in current map viewport
  */
 async function performBoundsSearch() {
+  console.log("🚀 performBoundsSearch()");
   const boundsObj = getMapBounds();
 
   if (!boundsObj) {
@@ -258,12 +259,10 @@ const sorted = sortPlaces(
 setPlaces(sorted);
 updateSearchResults(sorted);
 
-
     console.log("Bounds:", boundsObj);
     console.log("Places:", places);
 
     console.log(`📍 ${places.length} coffee shops found`);
-
 
   } 
   catch (error) {
@@ -286,6 +285,8 @@ updateSearchResults(sorted);
  */
 export function centerMapOnCity(lat, lng, zoomLevel = 13) {
   console.log(`🎯 Centering map on: ${lat}, ${lng}`);
+  console.log(typeof lat, lat);
+  console.log(typeof lng, lng);
   
   mapState.map.setCenter({ lat, lng });
   mapState.map.setZoom(zoomLevel);
@@ -305,7 +306,7 @@ export function centerMapOnCity(lat, lng, zoomLevel = 13) {
  */
 export function addMarkers(places, shouldAutoCenter = true) {
   
-  clearMarkersAndInfoWindows();
+  
 
   if (!places || places.length === 0) {
     console.warn("⚠️ No markers to add");
@@ -343,7 +344,7 @@ export function clearMap() {
  */
 export function focusPlace(place) {
 
-  const item = mapState.markerLookup.get(place.name);
+  const item = mapState.markerLookup.get(place.id);
 
   if (!item) {
     console.warn(`Marker not found for ${place.name}`);
@@ -352,11 +353,25 @@ export function focusPlace(place) {
 
   const { marker, infoWindow } = item;
 
-  marker.setAnimation(google.maps.Animation.BOUNCE);
+  // Remove previous active card
+  document.querySelectorAll(".place-card")
+    .forEach(card =>
+      card.classList.remove("active-card")
+    );
 
-  setTimeout(() => {
-    marker.setAnimation(null);
-  }, 700);
+  // Activate current card
+  const card = document.querySelector(
+    `[data-place-id="${place.id}"]`
+  );
+
+  if (card) {
+    card.classList.add("active-card");
+
+    card.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
 
   // Close any previously opened InfoWindows
   mapState.infoWindows.forEach(iw => iw.close());
