@@ -3,436 +3,782 @@
  * Handles map initialization, marker placement, and map interactions
  * Implements dynamic search when user moves or zooms the map
  */
+
 /* global google */
 
 import { mapTheme } from "./mapTheme.js";
-import { searchPlacesByBounds,reverseGeocode } from "./api.js";
-import { renderPlaces,updateMapStatus, } from "./ui.js";
+import { searchPlacesByBounds, reverseGeocode } from "./api.js";
+import { renderPlaces, updateMapStatus } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
-import { setPlaces, getCurrentSort} from "./state/appState.js";
+import {
+  setPlaces,
+  getCurrentSort,
+  getUserLocation
+} from "./state/appState.js";
 import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
-import { getUserLocation } from "./state/appState.js";
+
 
 const mapState = {
+
   map: null,
+
   markers: [],
+
   infoWindows: [],
+
   searchTimeout: null,
+
   markerLookup: new Map()
+
 };
 
 
 /**
- * Initialize Google Map instance
- * Sets default center to San José, Costa Rica
- * Removes POI labels for cleaner appearance
+ * Initialize Google Map
  */
 export function createMap() {
-  mapState.map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 9.9281, lng: -84.0907 },
-    zoom: 13,
-    styles: mapTheme
-  });
-  
+
+  mapState.map = new google.maps.Map(
+    document.getElementById("map"),
+    {
+      center: {
+        lat: 9.9281,
+        lng: -84.0907
+      },
+
+      zoom: 13,
+
+      styles: mapTheme
+    }
+  );
+
+
   console.log("✅ Map created");
+
   setupMapListeners();
+
 }
 
-/**
- * Setup map event listeners
- * Triggers coffee shop search when user moves or zooms
- * Uses debounce to prevent excessive API calls
- */
-function setupMapListeners() {
-  mapState.map.addListener("dragend", () => {
-    console.log("🖱️ User moved map");
-    debouncedSearch();
-  });
 
-  mapState.map.addListener("zoom_changed", () => {
-    console.log("🔍 User changed zoom");
-    debouncedSearch();
-  });
+
+/**
+ * Setup map listeners
+ */
+function setupMapListeners(){
+
+  mapState.map.addListener(
+    "dragend",
+    () => {
+
+      console.log("🖱️ User moved map");
+
+      debouncedSearch();
+
+    }
+  );
+
+
+  mapState.map.addListener(
+    "zoom_changed",
+    () => {
+
+      console.log("🔍 User changed zoom");
+
+      debouncedSearch();
+
+    }
+  );
+
 }
 
-/**
- * Debounced search function
- * Waits 800ms after user stops interacting before searching
- * Prevents multiple rapid API calls
- */
-function debouncedSearch() {
-  clearTimeout(mapState.searchTimeout);
-  mapState.searchTimeout = setTimeout(() => {
-    performBoundsSearch();
-  }, 800);
-}
+
 
 /**
- * Get current visible map bounds
- * Converts Google Maps bounds into application format
- * @returns {Object|null} Bounds object or null if unavailable
+ * Prevent excessive API calls
  */
-function getMapBounds() {
+function debouncedSearch(){
+
+  clearTimeout(
+    mapState.searchTimeout
+  );
+
+
+  mapState.searchTimeout = setTimeout(
+    () => {
+
+      performBoundsSearch();
+
+    },
+    800
+  );
+
+}
+
+
+
+/**
+ * Get visible map bounds
+ */
+function getMapBounds(){
+
   const bounds = mapState.map.getBounds();
-  if (!bounds) {
-    console.warn("⚠️ Map bounds not available yet");
+
+
+  if(!bounds){
+
+    console.warn(
+      "⚠️ Map bounds unavailable"
+    );
+
     return null;
+
   }
 
+
   return {
+
     south: bounds.getSouthWest().lat(),
+
     north: bounds.getNorthEast().lat(),
+
     west: bounds.getSouthWest().lng(),
+
     east: bounds.getNorthEast().lng()
+
   };
+
 }
-function clearMarkersAndInfoWindows() {
-  mapState.markers.forEach(marker => marker.setMap(null));
+
+
+
+/**
+ * Remove existing markers
+ */
+function clearMarkersAndInfoWindows(){
+
+  mapState.markers.forEach(
+    marker => marker.setMap(null)
+  );
+
+
+  mapState.infoWindows.forEach(
+    infoWindow => infoWindow.close()
+  );
+
+
   mapState.markers = [];
 
-  mapState.infoWindows.forEach(infoWindow => infoWindow.close());
   mapState.infoWindows = [];
 
   mapState.markerLookup.clear();
+
 }
 
-/**
- * Create a single map marker
- * @param {Object} place - Coffee shop data
- * @param {Number} index - Marker number
- * @param {Object} bounds - Google Maps bounds instance
- */
-function createMarker(place, index, bounds) {
-  console.log("📍 Creating marker:", place.name);
-  const lat = place.geocodes?.main?.latitude;
-  const lng = place.geocodes?.main?.longitude;
 
-  if (lat == null || lng == null) {
-    console.warn(`⚠️ Invalid coordinates for: ${place.name}`);
+
+/**
+ * Create marker
+ */
+function createMarker(place, bounds){
+
+
+  const lat =
+    place.geocodes?.main?.latitude;
+
+
+  const lng =
+    place.geocodes?.main?.longitude;
+
+
+
+  if(lat == null || lng == null){
+
+    console.warn(
+      `⚠️ Invalid coordinates for ${place.name}`
+    );
+
     return;
+
   }
 
-  const markerOptions = {
-    position: { lat, lng },
-    map: mapState.map,
-    title: place.name
-  };
 
-  //markerOptions.icon = {
-    //url: "public/assets/icons/coffee-marker.svg",
 
-    //scaledSize: new google.maps.Size(42, 52),
-    //anchor: new google.maps.Point(21, 52)
-  //};
-  
+  const marker =
+    new google.maps.Marker({
 
-  const marker = new google.maps.Marker(markerOptions);
-  const infoWindow = createInfoWindow(place);
-  mapState.markerLookup.set(place.id, {
-  mapState.markerLookup.set(place.id, {
-    marker,
-    infoWindow,
-    place
-  });
+      position:{
+        lat,
+        lng
+      },
 
-  marker.addListener("click", () => {
-    mapState.infoWindows.forEach(iw => iw.close());
-    infoWindow.open(mapState.map, marker);
-    focusPlace(place.id);
-    focusPlace(place);
-  });
+      map: mapState.map,
+
+      title: place.name
+
+    });
+
+
+
+  const infoWindow =
+    createInfoWindow(place);
+
+
+
+  marker.addListener(
+    "click",
+    () => {
+
+
+      mapState.infoWindows.forEach(
+        window => window.close()
+      );
+
+
+      infoWindow.open(
+        mapState.map,
+        marker
+      );
+
+
+      focusPlace(place);
+
+
+    }
+  );
+
+
+
+  mapState.markerLookup.set(
+    place.id,
+    {
+      marker,
+      infoWindow,
+      place
+    }
+  );
+
+
 
   mapState.markers.push(marker);
+
   mapState.infoWindows.push(infoWindow);
 
-  bounds.extend({ lat, lng });
-  console.log("✅ Marker created:", marker);
+
+
+  bounds.extend({
+    lat,
+    lng
+  });
+
+
 }
 
+
+
 /**
- * Create information popup for a coffee shop
- * @param {Object} place - Coffee shop data
- * @returns {google.maps.InfoWindow}
+ * Create popup window
  */
-function createInfoWindow(place) {
+function createInfoWindow(place){
+
+
   return new google.maps.InfoWindow({
+
     content: `
+
       <div class="map-popup">
-        <h3 
-          class="popup-title">${place.name}
+
+        <h3 class="popup-title">
+          ${place.name}
         </h3>
+
+
         <p class="popup-address">
           ${place.address}
         </p>
-        <a  class="popup-button"
-    target="_blank"
-    rel="noopener noreferrer" 
-    href="https://www.google.com/maps/dir/?api=1&destination=${place.geocodes.main.latitude},${place.geocodes.main.longitude}"
+
+
+        <a
+          class="popup-button"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.google.com/maps/dir/?api=1&destination=${place.geocodes.main.latitude},${place.geocodes.main.longitude}"
         >
+
           🧭 Open in Google Maps
+
         </a>
+
+
       </div>
+
     `
+
   });
+
+
 }
 
+
+
 /**
- * Adjust map view to display markers
- * @param {google.maps.LatLngBounds} bounds - Marker boundaries
+ * Fit markers into view
  */
-function fitMarkersOnMap(bounds) {
-  if (mapState.markers.length > 1) {
+function fitMarkersOnMap(bounds){
+
+
+  if(mapState.markers.length === 0){
+
+    return;
+
+  }
+
+
+
+  if(mapState.markers.length > 1){
+
+
     mapState.map.fitBounds(bounds);
 
-  } 
-  else if (mapState.markers.length === 1) {
-    mapState.map.setCenter(mapState.markers[0].getPosition());
-     mapState.map.setZoom(16);
+
   }
-}
+  else{
 
-/**
- * Update UI and map with search results
- * @param {Array} places - Coffee shops found
- */
-async function updateSearchResults(places) {
 
-    renderPlaces(places);
-
-    addMarkers(places, false);
-
-    updateMapStats(places.length);
-    renderPlaces(places);
-
-    addMarkers(places, false);
-
-    updateMapStats(places.length);
-
-        const center = mapState.map.getCenter();
-
-    const location = await reverseGeocode(
-        center.lat(),
-        center.lng()
-    );
-    const location = await reverseGeocode(
-        center.lat(),
-        center.lng()
+    mapState.map.setCenter(
+      mapState.markers[0].getPosition()
     );
 
-    updateMapStatus(location, places.length);
-    updateMapStatus(location, places.length);
+
+    mapState.map.setZoom(16);
+
+
+  }
+
+
 }
 
-function updateMapStats(total){
-  const counter = document.getElementById("results-count");
-  if(counter){
-    counter.textContent =
-    `${total} Coffee shop${total !== 1 ? "s" : ""}`;
-  }
-}
+
+
 /**
- * Perform search based on current map bounds
- * Queries coffee shops visible in current map viewport
+ * Update UI after search
  */
-async function performBoundsSearch() {
-  console.log("🚀 performBoundsSearch()");
-  console.log("🚀 performBoundsSearch()");
-  const boundsObj = getMapBounds();
+async function updateSearchResults(places){
 
-  if (!boundsObj) {
-    return;
-  }
 
-  console.log("📦 Searching by bounds:", boundsObj);
+  renderPlaces(places);
 
-  try {
-    setLoading(true);
-    // Search for coffee shops in current map view
-    const places = await searchPlacesByBounds(boundsObj);
 
-    const userLocation = getUserLocation();
-
-if (userLocation) {
-
-    places.forEach(place => {
-
-        place.distance = calculateDistance(userLocation, place);
-
-        place.walkingTime = estimateTravelTime(place.distance);
-
-    });
-
-}
-
-const sorted = sortPlaces(
+  addMarkers(
     places,
-    getCurrentSort()
-);
+    false
+  );
 
-setPlaces(sorted);
-updateSearchResults(sorted);
 
-    console.log("Bounds:", boundsObj);
-    console.log("Places:", places);
+  updateMapStats(
+    places.length
+  );
 
-    console.log(`📍 ${places.length} coffee shops found`);
 
-  } 
-  catch (error) {
-    console.error("❌ Bounds search error:", error);
-  } 
-  finally {
-    const loader = document.getElementById("loader");
-    if (loader) {
-      setLoading(false);
+
+  const center =
+    mapState.map.getCenter();
+
+
+
+  const location =
+    await reverseGeocode(
+      center.lat(),
+      center.lng()
+    );
+
+
+
+  updateMapStatus(
+    location,
+    places.length
+  );
+
+
+}
+
+
+
+/**
+ * Update result counter
+ */
+function updateMapStats(total){
+
+
+  const counter =
+    document.getElementById(
+      "results-count"
+    );
+
+
+
+  if(counter){
+
+    counter.textContent =
+      `${total} Coffee shop${total !== 1 ? "s" : ""}`;
+
+  }
+
+}
+
+
+
+/**
+ * Search places in visible map area
+ */
+async function performBoundsSearch(){
+
+
+  const boundsObj =
+    getMapBounds();
+
+
+
+  if(!boundsObj){
+
+    return;
+
+  }
+
+
+
+  try{
+
+
+    setLoading(true);
+
+
+
+    const places =
+      await searchPlacesByBounds(
+        boundsObj
+      );
+
+
+
+    const userLocation =
+      getUserLocation();
+
+
+
+    if(userLocation){
+
+
+      places.forEach(place => {
+
+
+        place.distance =
+          calculateDistance(
+            userLocation,
+            place
+          );
+
+
+        place.walkingTime =
+          estimateTravelTime(
+            place.distance
+          );
+
+
+      });
+
+
     }
+
+
+
+    const sorted =
+      sortPlaces(
+        places,
+        getCurrentSort()
+      );
+
+
+
+    setPlaces(sorted);
+
+
+    updateSearchResults(sorted);
+
+
+
+    console.log(
+      `📍 ${sorted.length} coffee shops found`
+    );
+
+
   }
+  catch(error){
+
+
+    console.error(
+      "❌ Bounds search error:",
+      error
+    );
+
+
+  }
+  finally{
+
+
+    setLoading(false);
+
+
+  }
+
+
 }
 
+
+
 /**
- * Center map on specific city coordinates
- * Updates map view to show the specified location
- * @param {Number} lat - Latitude of target location
- * @param {Number} lng - Longitude of target location
- * @param {Number} zoomLevel - Zoom level (default 13)
+ * Center map on city
  */
-export function centerMapOnCity(lat, lng, zoomLevel = 13) {
-  console.log(`🎯 Centering map on: ${lat}, ${lng}`);
-  console.log(typeof lat, lat);
-  console.log(typeof lng, lng);
-  console.log(typeof lat, lat);
-  console.log(typeof lng, lng);
-  
-  mapState.map.setCenter({ lat, lng });
-  mapState.map.setZoom(zoomLevel);
-  
-  google.maps.event.addListenerOnce(mapState.map, "idle", () => {
-    performBoundsSearch();
+export function centerMapOnCity(
+  lat,
+  lng,
+  zoomLevel = 13
+){
+
+
+  mapState.map.setCenter({
+
+    lat,
+
+    lng
+
   });
+
+
+  mapState.map.setZoom(
+    zoomLevel
+  );
+
+
+
+  google.maps.event.addListenerOnce(
+    mapState.map,
+    "idle",
+    () => {
+
+      performBoundsSearch();
+
+    }
+  );
+
+
 }
 
-/**
- * Add markers to map for each coffee shop
- * Removes previous markers
- * Adds info windows with shop details
- * Implements auto-zoom for search results
- * @param {Array} places - Array of coffee shop objects
- * @param {Boolean} shouldAutoCenter - Whether to auto-zoom to fit markers (default true)
- */
-export function addMarkers(places, shouldAutoCenter = true) {
-  
-  
 
-  if (!places || places.length === 0) {
-    console.warn("⚠️ No markers to add");
-    return;
-  }
-
-  const bounds = new google.maps.LatLngBounds();
-
-  // Create marker for each coffee shop
-  places.forEach((place, index) => {
-    createMarker(place, index, bounds);
-  });
-
-  // Auto-center map to show all markers
-  if (shouldAutoCenter) {
-    fitMarkersOnMap(bounds);
-  }
-
-  console.log(`✅ ${mapState.markers.length} markers added`);
-}
 
 /**
- * Clear all markers from map
- * Removes all markers and closes info windows
+ * Add markers
  */
-export function clearMap() {
+export function addMarkers(
+  places,
+  shouldAutoCenter = true
+){
+
+
   clearMarkersAndInfoWindows();
-  console.log("✅ Map cleared");
+
+
+
+  if(!places || places.length === 0){
+
+    console.warn(
+      "⚠️ No markers to add"
+    );
+
+    return;
+
+  }
+
+
+
+  const bounds =
+    new google.maps.LatLngBounds();
+
+
+
+  places.forEach(place => {
+
+    createMarker(
+      place,
+      bounds
+    );
+
+  });
+
+
+
+  if(shouldAutoCenter){
+
+    fitMarkersOnMap(
+      bounds
+    );
+
+  }
+
+
+
+  console.log(
+    `✅ ${mapState.markers.length} markers added`
+  );
+
+
 }
+
+
 
 /**
- * Focus map on a coffee shop
- * Centers the map and opens its InfoWindow
- * @param {Object} place
+ * Clear map
  */
-export function focusPlace(place) {
+export function clearMap(){
 
-  const item = mapState.markerLookup.get(place.id);
-  const item = mapState.markerLookup.get(place.id);
+  clearMarkersAndInfoWindows();
 
-  if (!item) {
-    console.warn(`Marker not found for ${place.name}`);
+}
+
+
+
+/**
+ * Focus selected coffee shop
+ */
+export function focusPlace(place){
+
+
+  const item =
+    mapState.markerLookup.get(
+      place.id
+    );
+
+
+
+  if(!item){
+
+    console.warn(
+      `Marker not found for ${place.name}`
+    );
+
     return;
+
   }
 
-  const { marker, infoWindow } = item;
 
-  // Remove previous active card
-  document.querySelectorAll(".place-card")
-    .forEach(card =>
-      card.classList.remove("active-card")
+
+  const {
+    marker,
+    infoWindow
+  } = item;
+
+
+
+  document
+    .querySelectorAll(".place-card")
+    .forEach(card => {
+
+      card.classList.remove(
+        "active-card"
+      );
+
+    });
+
+
+
+  const card =
+    document.querySelector(
+      `[data-place-id="${place.id}"]`
     );
 
-  // Activate current card
-  const card = document.querySelector(
-    `[data-place-id="${place.id}"]`
-  );
 
-  if (card) {
-    card.classList.add("active-card");
 
-    card.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  }
+  if(card){
 
-  // Remove previous active card
-  document.querySelectorAll(".place-card")
-    .forEach(card =>
-      card.classList.remove("active-card")
+    card.classList.add(
+      "active-card"
     );
 
-  // Activate current card
-  const card = document.querySelector(
-    `[data-place-id="${place.id}"]`
-  );
-
-  if (card) {
-    card.classList.add("active-card");
 
     card.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
+
+      behavior:"smooth",
+
+      block:"center"
+
     });
+
   }
 
-  // Close any previously opened InfoWindows
-  mapState.infoWindows.forEach(iw => iw.close());
 
-  // Center map
-  mapState.map.panTo(marker.getPosition());
 
-  // Smooth zoom
-  mapState.map.setZoom(17);
+  mapState.infoWindows.forEach(
+    window => window.close()
+  );
 
-  // Open popup
-  infoWindow.open(mapState.map, marker);
+
+
+  mapState.map.panTo(
+    marker.getPosition()
+  );
+
+
+  mapState.map.setZoom(
+    17
+  );
+
+
+  infoWindow.open(
+    mapState.map,
+    marker
+  );
+
+
 }
 
-export function highlightMarker(place) {
-  const item = mapState.markerLookup.get(place.id);
-  if (!item) return;
 
-  item.marker.setAnimation(google.maps.Animation.BOUNCE);
 
-  setTimeout(() => {
-    item.marker.setAnimation(null);
-  }, 700);  
+/**
+ * Highlight marker animation
+ */
+export function highlightMarker(place){
+
+
+  const item =
+    mapState.markerLookup.get(
+      place.id
+    );
+
+
+
+  if(!item){
+
+    return;
+
+  }
+
+
+
+  item.marker.setAnimation(
+    google.maps.Animation.BOUNCE
+  );
+
+
+
+  setTimeout(
+    () => {
+
+      item.marker.setAnimation(null);
+
+    },
+    700
+  );
+
+
 }
-
-  
