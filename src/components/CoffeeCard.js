@@ -2,25 +2,11 @@ import { formatDistance } from "../utils/distance.js";
 import { formatTravelTime } from "../utils/travelTime.js";
 import { createActionBar } from "./actionBar.js";
 import { saveFavorite } from "../storage.js";
-import { focusPlace, highlightMarker } from "../map.js";
+import { focusPlace } from "../map.js";
 import {sharePlace} from "../services/shareService.js";
+import { getMapMode, getActivePlace } from "../state/appState.js";
 
 
-/**
- * Activate selected card
- */
-function activateCard(card) {
-
-  document
-    .querySelectorAll(".place-card")
-    .forEach(item =>
-      item.classList.remove("active-card")
-    );
-
-
-  card.classList.add("active-card");
-
-}
 
 /**
  * Setup favorite button behavior
@@ -91,92 +77,93 @@ function setupShareButton(clone, place) {
 /**
  * Create coffee shop card
  */
-export function createCoffeeCard (template, place) {
+export function createCoffeeCard(template, place) {
 
   const clone = template.content.cloneNode(true);
-
 
   const locationText = clone.querySelector(".location-text");
 
   if (locationText) {
-    locationText.textContent = ` ${place.city}, ${place.state}`;
+    locationText.textContent = `${place.location.city?? ""}, ${place.location.state?? ""}`;
   }
 
-
   const card = clone.querySelector(".place-card");
-
 
   if (!card) {
     console.error("Place card template missing");
     return clone;
   }
 
-
+  // Dataset
   card.dataset.place = place.name;
+  card.dataset.placeId = place.id;
+  console.log(
+  "Rendering",
+  place.name,
+  getMapMode(),
+  getActivePlace()?.name
+);
 
+  // Focus Mode visual state
+  if (getMapMode() === "focus") {
 
+    if (getActivePlace()?.id === place.id) {
 
+      card.classList.add("active-card");
+
+    } else {
+
+      card.classList.add("inactive-card");
+
+    }
+
+  }
+
+  // Click
   card.addEventListener("click", () => {
     focusPlace(place);
   });
 
-
-
+  // Basic info
   clone.querySelector(".place-name").textContent =
     place.name;
-
 
   clone.querySelector(".place-address").textContent =
     place.address || "Address not available";
 
-
-
-  /*
-    Create action buttons
-    BEFORE adding events
-  */
-
-  const actionBar = clone.querySelector(".action-bar-container");
-
+  // Action buttons
+  const actionBar =
+    clone.querySelector(".action-bar-container");
 
   if (actionBar) {
-
     actionBar.innerHTML = createActionBar();
-
   }
 
-
   setupFavoriteButton(clone, place);
-
   setupDirectionButton(clone, place);
-
   setupShareButton(clone, place);
 
-
-
-  const distance = clone.querySelector(".distance-value");
-
+  // Distance
+  const distance =
+    clone.querySelector(".distance-value");
 
   if (distance && place.distance) {
 
     distance.textContent =
-      ` ${formatDistance(place.distance)}`;
+      formatDistance(place.distance);
 
   }
 
-
-
-  const walking = clone.querySelector(".travel-time-value");
-
+  // Walking time
+  const walking =
+    clone.querySelector(".travel-time-value");
 
   if (walking && place.walkingTime) {
 
     walking.textContent =
-      ` ${formatTravelTime(place.walkingTime)}`;
+      formatTravelTime(place.walkingTime);
 
   }
-
-
 
   return clone;
 

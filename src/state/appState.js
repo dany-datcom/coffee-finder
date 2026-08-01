@@ -1,7 +1,9 @@
 const appState = {
   userLocation: null,
   currentSort: "distance",
-  places: []
+  places: [],
+  mapMode: "explore",
+  activePlace: null
 };
 
 export function setUserLocation(location) {
@@ -28,4 +30,24 @@ export function setPlaces(data) {
 
 export function getPlaces() {
   return appState.places;
+}
+
+export function setMapMode(mode) {
+  appState.mapMode = mode;
+}
+
+export function setActivePlace(place) {
+  appState.activePlace = place;
+}
+
+export function getMapMode() {
+  return appState.mapMode;
+}
+
+export function getActivePlace() {
+  return appState.activePlace;
+}
+
+export function getVisiblePlaces() {
+  return appState.place;
 }

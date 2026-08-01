@@ -18,6 +18,7 @@ import {
 import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
+import { setMapMode, setActivePlace, getMapMode, getActivePlace } from "./state/appState.js";
 
 const MARKER_ICON = {
   url: "/assets/coffee-marker.svg",
@@ -185,25 +186,34 @@ function clearMarkersAndInfoWindows(){
 }
 
 function enterFocusMode(place) {
-  mapState.activePlace = place;
-  mapState.mode = "focus";
-  console.log("☕ Enter Focus Mode:", place.name);
+
+  setMapMode("focus");
+  setActivePlace(place);
+
+  console.log({
+  mode: getMapMode(),
+  activePlace: getActivePlace()
+});
+
 }
 
 function exitFocusMode() {
-  mapState.activePlace = null;
-  mapState.mode = "explore";
+  setMapMode("explore");
+  setActivePlace(null);
+  
   console.log("☕ Exit Focus Mode");
 }
 
 function getVisiblePlaces(places) {
 
-  if (!mapState.isFocused) {
+  if (getMapMode() !== "focus") {
     return places;
   }
 
+  const activePlace = getActivePlace();
+
   const exists = places.find(
-    place => place.id === mapState.activePlace.id
+    place => place.id === activePlace?.id
   );
 
   if (!exists) {
@@ -215,12 +225,11 @@ function getVisiblePlaces(places) {
   }
 
   return [exists];
-
 }
 
 function isMapInteractive() {
 
-    return mapState.mode === "explore";
+    return getMapMode() === "explore";
 
 }
 
@@ -278,8 +287,8 @@ function createMarker(place, bounds){
   marker.addListener("click", () => {
 
   if (
-    mapState.mode === "focus" &&
-    mapState.activePlace.id !== place.id
+    (getMapMode() === "focus") &&
+    getActivePlace()?.id !== place.id
   ) {
     return;
   }
@@ -483,6 +492,10 @@ function updateMapStats(total){
  * Search places in visible map area
  */
 async function performBoundsSearch(){
+  console.log(
+  "performBoundsSearch()",
+  getMapMode()
+);
 
   if (!isMapInteractive()) {
 
@@ -720,7 +733,13 @@ function resetMarkerIcons() {
  * Focus selected coffee shop
  */
 export function focusPlace(place) {
+
+  console.log("1. Enter Focus");
+
+  // Update application state
   enterFocusMode(place);
+
+//addMarkers([place], false);
 
   const item = mapState.markerLookup.get(place.id);
 
@@ -729,63 +748,58 @@ export function focusPlace(place) {
   }
 
   const { marker, infoWindow } = item;
-  
 
-  // Close any previously opened InfoWindows
+  // Close previous popup
   mapState.infoWindows.forEach(window => window.close());
 
-  // Center map on selected marker
+  // Center map
   mapState.map.panTo(marker.getPosition());
+  console.log("2. Pan");
 
-  // Avoid unnecessary zoom changes
   if (mapState.map.getZoom() < 17) {
     mapState.map.setZoom(17);
   }
 
-  // Highlight marker
-  marker.setAnimation(google.maps.Animation.BOUNCE);
+  // Update marker appearance
+  resetMarkerIcons();
+  activateMarker(marker);
+
+  marker.setAnimation(
+    google.maps.Animation.BOUNCE
+  );
 
   setTimeout(() => {
     marker.setAnimation(null);
   }, 700);
 
-  resetMarkerIcons();
-activateMarker(marker);
-
   // Open popup
-  infoWindow.open(mapState.map, marker);
+  infoWindow.open(
+    mapState.map,
+    marker
+  );
 
-
-  // Remove previous active card
-  document
-    .querySelectorAll(".place-card")
-    .forEach(card => {
-      card.classList.remove("active-card");
-      card.classList.add("inactive-card");
-    });
-
-  // Highlight selected card
+  // Scroll selected card into view
   const card = document.querySelector(
     `[data-place-id="${place.id}"]`
   );
 
-  if (card) {
-    card.classList.remove("inactive-card");
-    card.classList.add("active-card");
-    
-    const rect = card.getBoundingClientRect();
+  if (!card) {
+    return;
+  }
 
-const isVisible =
-  rect.top >= 0 &&
-  rect.bottom <= window.innerHeight;
+  const rect = card.getBoundingClientRect();
 
-if (!isVisible) {
-  card.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
-}
+  const isVisible =
+    rect.top >= 0 &&
+    rect.bottom <= window.innerHeight;
 
+  if (!isVisible) {
+
+    card.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+    console.log("3. Popup opened");
   }
 
 }
