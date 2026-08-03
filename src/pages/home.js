@@ -7,7 +7,7 @@
 import { setLoading } from "../utils/loading.js";
 import { geocodeCity, getCurrentLocation, reverseGeocode,} from "../api.js";
 import { createHero } from "../components/hero.js";
-import { setUserLocation, getPlaces, setCurrentSort, getCurrentSort} from "../state/appState.js";
+import { setUserLocation, getPlaces, setCurrentSort, getCurrentSort, setLoadingState,isLoading} from "../state/appState.js";
 import { sortPlaces } from "../utils/sorting.js";
 import { renderPlaces } from "../ui.js";
 
@@ -15,7 +15,7 @@ import { renderPlaces } from "../ui.js";
 function setupSorting() {
 
   const select = document.getElementById("sort-select");
-
+  
   select.addEventListener("change", () => {
 
     setCurrentSort(select.value);
@@ -23,6 +23,7 @@ function setupSorting() {
     const places = getPlaces();
 
     const sorted = sortPlaces(places, getCurrentSort());
+
 
     renderPlaces(sorted);
 
@@ -63,7 +64,12 @@ function createHomeTemplate() {
 
       <div id="results" class="results-grid">
 
-        <div id="loader" class="loader hidden"></div>
+        <div id="loader" class="loader hidden">
+        <div class="loader-spinner"></div>
+        <p class="loader-text">
+          Searching coffee Shops...
+        </p>
+        </div>
 
       </div>
 
@@ -221,11 +227,7 @@ export async function renderHomePage() {
   } catch (error){
     console.warn("Location not available:", error.message);
   }
-   const coordinates = await getCurrentLocation();
-const location = await reverseGeocode(
-    coordinates.lat,
-    coordinates.lng
-);
+
 
 setUserLocation(location);
 
@@ -244,29 +246,53 @@ function setupSearch() {
 
 async function handleSearch(e) {
   e.preventDefault();
+
+  if (isLoading()) {
+    return;
+  }
+
   const input = document.getElementById("search-input");
   const query = input.value.trim();
-    if (!query) return;
-      console.log("🔎 Searching for:", query);
-    try {
-      setLoading(true);
-      // Geocode city name to get coordinates
-      const cityCoords = await geocodeCity(query);
-        if (!cityCoords) {
-          alert("❌ City not found");
-        return;
-      }
 
-      // Center map on the found city
-      const { centerMapOnCity: centerMap } = await import("../map.js");
-      centerMap(cityCoords.lat, cityCoords.lng, 13);
+  if (!query) {
+    return;
+  }
 
-      input.value = "";
-    } catch (error) {
-      console.error("❌ Error:", error);
-    } finally {
-      setLoading(false);
+  console.log("🔎 Searching for:", query);
+
+  setLoadingState(true);
+  setLoading(true);
+
+  try {
+
+    // Geocode city name to get coordinates
+    const cityCoords = await geocodeCity(query);
+
+    if (!cityCoords) {
+      alert("❌ City not found");
+      return;
     }
-  
+
+    // Center map on the found city
+    const { centerMapOnCity: centerMap } = await import("../map.js");
+
+    centerMap(
+      cityCoords.lat,
+      cityCoords.lng,
+      13
+    );
+
+    input.value = "";
+
+  } catch (error) {
+
+    console.error("❌ Error:", error);
+
+  } finally {
+
+    setLoading(false);
+    setLoadingState(false);
+
+  }
 }
 

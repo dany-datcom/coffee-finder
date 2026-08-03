@@ -139,3 +139,70 @@
 
 }
 
+.skeleton{
+
+    background:#ececec;
+
+    border-radius:8px;
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.skeleton::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    transform:translateX(-100%);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.6),
+            transparent
+        );
+
+    animation:
+        skeleton-loading
+        1.2s
+        infinite;
+
+}
+
+.skeleton-title{
+
+    width:70%;
+
+    height:22px;
+
+}
+.skeleton-line{
+
+    height:14px;
+
+    margin-top:12px;
+
+}
+.short{
+
+    width:55%;
+
+}
+
+@keyframes skeleton-loading{
+
+    100%{
+
+        transform:translateX(100%);
+
+    }
+
+}
+

@@ -8,7 +8,7 @@
 
 import { mapTheme } from "./mapTheme.js";
 import { searchPlacesByBounds, reverseGeocode } from "./api.js";
-import { renderPlaces, updateMapStatus } from "./ui.js";
+import { renderPlaces, updateMapStatus,renderSkeletonCards } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
 import {
   setPlaces,
@@ -520,7 +520,12 @@ async function performBoundsSearch(){
   try{
 
 
-    setLoading(true);
+    setLoading(
+  true,
+  "Searching coffee shops..."
+);
+
+renderSkeletonCards();
 
 
 

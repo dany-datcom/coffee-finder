@@ -4,7 +4,7 @@
  * Displays loading states and empty states
  */
 
-
+import { createSkeletonCards } from "./components/skeletonCards.js";
 import { initializeIcons } from "./icons/icons.js";
 import { createCoffeeCard } from "./components/CoffeeCard.js";
 
@@ -91,7 +91,23 @@ function renderEmptyState(container){
 
 
 }
+export function renderSkeletonCards(count = 3) {
 
+  const container =
+    document.getElementById("results");
+
+  if (!container) {
+    return;
+  }
+
+  clearResults(container);
+
+  container.insertAdjacentHTML(
+    "beforeend",
+    createSkeletonCards(count)
+  );
+
+}
 
 
 
