@@ -289,9 +289,8 @@ function createMarker(place, bounds){
   if (
     (getMapMode() === "focus") &&
     getActivePlace()?.id !== place.id
-  ) {
-    return;
-  }
+  ) 
+    
 
   mapState.infoWindows.forEach(window =>
     window.close()

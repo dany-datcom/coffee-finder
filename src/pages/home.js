@@ -41,27 +41,25 @@ function createHomeTemplate() {
   ${createHero()}
 
   <section class="explore-layout">
-
     <section class="results-container">
+      <div class="results-toolbar">
 
-    <div class="results-toolbar">
-  <label for="sort-select">
-    Sort by:
-  </label>
-  <select id="sort-select">
-    <option value="distance">
-      Nearest
-    </option>
+        <label for="sort-select">
+          Sort by:
+        </label>
 
-    <option value="farthest">
-      Farthest
-    </option>
-
-    <option value = "name">
-      Name (A-Z)
-    </option>
-  </select>
-</div>
+        <div id="sort-select-wrapper">
+          <select id="sort-select">
+            <option value="distance">Nearest</option>
+            <option value="farthest">Farthest</option>
+            <option value="name">Name (A-Z)</option>
+          </select>
+          <i
+            data-lucide="chevron-down"
+            class="sort-icon">
+          </i>
+        </div>
+      </div>
 
       <div id="results" class="results-grid">
 
