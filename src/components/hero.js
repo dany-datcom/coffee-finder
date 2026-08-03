@@ -42,6 +42,7 @@ export function createHero() {
             </div>
 
             <button
+              id="search-button"
               class="search-button"
               type="submit"
             >

@@ -1,120 +1,87 @@
 # ☕ Coffee Finder
 
-A modern web application that helps users discover coffee shops using interactive maps and location-based search.
+Coffee Finder is a front-end project developed for my portfolio. It allows users to discover coffee shops through an interactive map and location-based search experience.
 
-Coffee Finder integrates **Google Maps JavaScript API** and **Geoapify Places API** to provide a dynamic experience where users can explore nearby cafés, search locations, and visualize results through an interactive map.
+The application integrates the **Google Maps JavaScript API** and **Geoapify services** to display nearby cafés, search by city or location, and visualize results directly on the map.
 
-The project focuses on clean architecture, modular JavaScript, API integration, and creating a maintainable user experience.
+Built with **JavaScript**, **HTML**, **CSS**, and **Vite**, this project follows a modular structure with a focus on clean code, usability, and maintainability.
 
----
+## Live Demo
 
-## 🚀 Features
+You can view the deployed project here:
 
-### 🗺️ Interactive Map
-
-- Google Maps integration
-- Dynamic coffee shop markers
-- Automatic map centering
-- Zoom and drag-based searching
-- Custom map styling for a cleaner interface
-
-### 🔎 Location Search
-
-- Search coffee shops by city or location
-- Geocoding support
-- Search results based on current map boundaries
-- Automatic filtering of visible locations
-
-### ☕ Coffee Shop Information
-
-- Display coffee shop names
-- Show addresses
-- Interactive information windows
-- Numbered map markers
-
-### ⭐ Favorites
-
-- Save favorite coffee shops
-- Store favorites using browser local storage
-- Prevent duplicate user actions
+[Coffee Finder on Render](https://coffee-finder-mylk.onrender.com/)
 
 ---
 
-# 🛠️ Technologies Used
+## Features
 
-## Frontend
+- Interactive Google Maps experience
+- Coffee shop search by city or location
+- Dynamic markers and info windows
+- Favorite coffee shop storage
+- Responsive and lightweight interface
+
+---
+
+## Tech Stack
 
 - HTML5
 - CSS3
 - JavaScript ES Modules
 - Vite
-
-## APIs
-
 - Google Maps JavaScript API
 - Geoapify Places API
 - Geoapify Geocoding API
 
-## Development Tools
-
-- Git
-- GitHub
-- ESLint
-- Vite Development Server
-
 ---
 
-# 🏗️ Project Architecture
+## Project Structure
 
-The application follows a modular structure where each file has a clear responsibility.
-
-
+```text
 src/
-│
-├── api.js # Handles external API communication
-├── map.js # Google Maps initialization and marker management
-├── ui.js # Handles DOM rendering and user interface
-├── storage.js # Manages local storage operations
-├── home.js # Controls home page behavior
-├── main.js # Application entry point
-│
+├── api.js
+├── map.js
+├── ui.js
+├── storage.js
+├── home.js
+├── main.js
 └── styles/
-└── style.css # Application styling
-
-
----
-
-# 🔄 Application Flow
-
-
-User Interaction
-|
-↓
-home.js
-|
-↓
-api.js
-|
-↓
-External APIs
-|
-↓
-Data Transformation
-|
-↓
-map.js + ui.js
-|
-↓
-User Interface
-
+    └── style.css
+```
 
 ---
 
-# 📍 How It Works
+## Getting Started
 
-1. The application initializes Google Maps.
-2. Users search for a city or move around the map.
-3. The application calculates the visible map boundaries.
-4. Coffee shop data is requested from Geoapify.
-5. API responses are transformed into application-friendly objects.
-6. Results are displayed as cards and interactive map markers.
+### Prerequisites
+- Node.js
+- npm
+
+### Installation
+
+```bash
+git clone https://github.com/dany-datcom/coffee-finder.git
+cd coffee-finder
+npm install
+npm run dev
+```
+
+### Scripts
+- `npm run dev` — start the development server
+- `npm run build` — create a production build
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run ESLint
+- `npm run lint:fix` — run ESLint and automatically fix issues
+
+---
+
+## Notes
+
+This project was created as part of my portfolio to demonstrate front-end development skills, API integration, and modular JavaScript architecture.
+
+---
+
+## License
+
+No license has been added yet.

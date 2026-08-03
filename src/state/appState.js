@@ -3,8 +3,15 @@ const appState = {
   currentSort: "distance",
   places: [],
   mapMode: "explore",
-  activePlace: null
+  activePlace: null,
+  loading: false
 };
+
+export function setLoadingState(value) {
+  appState.loading = value;}
+  export function isLoading() {
+  return appState.loading;
+}
 
 export function setUserLocation(location) {
   appState.userLocation = location;

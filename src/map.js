@@ -8,7 +8,7 @@
 
 import { mapTheme } from "./mapTheme.js";
 import { searchPlacesByBounds, reverseGeocode } from "./api.js";
-import { renderPlaces, updateMapStatus } from "./ui.js";
+import { renderPlaces, updateMapStatus,renderSkeletonCards } from "./ui.js";
 import { setLoading } from "./utils/loading.js";
 import {
   setPlaces,
@@ -290,9 +290,8 @@ function createMarker(place, bounds){
   if (
     (getMapMode() === "focus") &&
     getActivePlace()?.id !== place.id
-  ) {
-    return;
-  }
+  ) 
+    
 
   mapState.infoWindows.forEach(window =>
     window.close()
@@ -522,7 +521,12 @@ async function performBoundsSearch(){
   try{
 
 
-    setLoading(true);
+    setLoading(
+  true,
+  "Searching coffee shops..."
+);
+
+renderSkeletonCards();
 
 
 
