@@ -112,10 +112,6 @@ function createHomeTemplate() {
   
 
 
-    <div class="place-status">
-        Coffee Shop
-    </div>
-
     <div class="place-card-header">
 
         <h3 class="place-name"></h3>
@@ -223,15 +219,7 @@ export async function renderHomePage() {
   } catch (error){
     console.warn("Location not available:", error.message);
   }
-   const coordinates = await getCurrentLocation();
-const location = await reverseGeocode(
-    coordinates.lat,
-    coordinates.lng
-);
 
-setUserLocation(location);
-
-centerMapOnCity(location.lat, location.lng);
 }
 
 /**

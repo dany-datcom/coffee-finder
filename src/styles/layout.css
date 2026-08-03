@@ -104,9 +104,12 @@
 }
 
 .results-container{
-    height:calc(100vh - 180px);
+    height:calc(100vh - 120px);
     overflow-y:auto;
-    padding-right:var(--space-sm);
+    padding:
+        var(--space-sm)
+        var(--space-sm)
+        var(--space-lg);
 }
 
 .map-panel{

@@ -116,8 +116,12 @@ export function createCoffeeCard(template, place) {
       card.classList.add("inactive-card");
 
     }
-
+    
   }
+  console.log(
+  place.name,
+  card.className
+);
 
   // Click
   card.addEventListener("click", () => {

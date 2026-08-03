@@ -13,7 +13,8 @@ import { setLoading } from "./utils/loading.js";
 import {
   setPlaces,
   getCurrentSort,
-  getUserLocation
+  getUserLocation,
+  getPlaces
 } from "./state/appState.js";
 import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
@@ -738,6 +739,7 @@ export function focusPlace(place) {
 
   // Update application state
   enterFocusMode(place);
+  renderPlaces(getPlaces());
 
 //addMarkers([place], false);
 
