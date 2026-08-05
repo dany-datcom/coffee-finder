@@ -170,7 +170,7 @@ export async function searchPlacesByBounds(bounds) {
   try {
     
     // Search coffee shops using proximity (map center coordinates)
-    const searchUrl = `https://api.geoapify.com/v2/places?categories=catering.cafe&bias=proximity:${centerLng},${centerLat}&limit=50&apiKey=${API_KEY}`;
+    const searchUrl = `https://api.geoapify.com/v2/places?categories=catering.cafe&bias=proximity:${centerLng},${centerLat}&limit=10&apiKey=${API_KEY}`;
     
    
     console.log(`🌐 API URL: ${searchUrl}`);

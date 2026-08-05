@@ -10,10 +10,6 @@ export function createSearchKey(map) {
     return `${lat},${lng},${zoom}`;
 }
 
-export function hasCachedSearch(key) {
-  return cache.has(key);
-}
-
 export function getCachedSearch(key) {
   return cache.get(key);
 }
