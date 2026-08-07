@@ -91,23 +91,20 @@ function renderEmptyState(container){
 
 
 }
-export function renderSkeletonCards(count = 3) {
+  export function renderSkeletonCards(count = 3) {
+    const container = document.getElementById("results");
 
-  const container =
-    document.getElementById("results");
+    if (!container) {
+      return;
+    }
 
-  if (!container) {
-    return;
+    clearResults(container);
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      createSkeletonCards(count)
+    );
   }
-
-  clearResults(container);
-
-  container.insertAdjacentHTML(
-    "beforeend",
-    createSkeletonCards(count)
-  );
-
-}
 
 
 
@@ -115,89 +112,37 @@ export function renderSkeletonCards(count = 3) {
  * Render coffee shop cards
  */
 export function renderPlaces(places){
-
-
-  const container =
-    document.getElementById(
-      "results"
-    );
-
-
+  const container = document.getElementById("results");
 
   if(!container){
-
-    console.error(
-      "❌ Results container missing"
-    );
-
+    console.error("❌ Results container missing");
     return;
-
   }
-
-
 
   clearResults(container);
 
-
-
   if(!places || places.length === 0){
-
-
-    renderEmptyState(
-      container
-    );
-
-
+      renderEmptyState(container);
     return;
-
   }
 
-
-
-  const template =
-    document.getElementById(
-      "place-template"
-    );
-
-
+  const template = document.getElementById("place-template");
 
   if(!template){
-
-    console.error(
-      "❌ Card template missing"
-    );
-
+    console.error("❌ Card template missing");
     return;
-
   }
 
-
+  const fragment = document.createDocumentFragment();
 
   places.forEach(place => {
-
-
-    const card =
-      createCoffeeCard(
-        template,
-        place
-      );
-
-
-    container.appendChild(card);
-
-
+    const card = createCoffeeCard(template, place);
+    fragment.appendChild(card);
   });
 
-
-
-  console.log(
-    `✅ ${places.length} cards rendered`
-  );
-
-
+  container.appendChild(fragment);
 
   initializeIcons();
-
 
 }
 

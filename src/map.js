@@ -173,16 +173,9 @@ function clearMarkersAndInfoWindows(){
 }
 
 function enterFocusMode(place) {
-
   setMapMode("focus");
   setActivePlace(place);
-
-  console.log({
-  mode: getMapMode(),
-  activePlace: getActivePlace()
-});
-
-}
+};
 
 function exitFocusMode() {
   setMapMode("explore");
@@ -204,11 +197,8 @@ function getVisiblePlaces(places) {
   );
 
   if (!exists) {
-
     exitFocusMode();
-
     return places;
-
   }
 
   return [exists];
@@ -408,9 +398,7 @@ function fitMarkersOnMap(bounds){
  * Update UI after search
  */
 async function updateSearchResults(places){
-
-const visiblePlaces = getVisiblePlaces(places);
-
+  const visiblePlaces = getVisiblePlaces(places);
   renderPlaces(visiblePlaces);
 
   addMarkers(
@@ -418,25 +406,17 @@ const visiblePlaces = getVisiblePlaces(places);
     false
   );
 
-
   updateMapStats(
     places.length
   );
 
-
-
-  const center =
-    mapState.map.getCenter();
-
-
+  const center = mapState.map.getCenter();
 
   const location =
     await reverseGeocode(
       center.lat(),
       center.lng()
     );
-
-
 
   updateMapStatus(
     location,
@@ -625,15 +605,14 @@ export function clearMap(){
 }
 
 function resetMarkerIcons() {
-
   mapState.markerLookup.forEach(item => {
     item.marker.setIcon(MARKER_ICON);
   });
-
 }
-  function activateMarker(marker) {
-    marker.setIcon(ACTIVE_MARKER_ICON);
-  }
+  
+function activateMarker(marker) {
+  marker.setIcon(ACTIVE_MARKER_ICON);
+ }
 
 
 
@@ -641,14 +620,9 @@ function resetMarkerIcons() {
  * Focus selected coffee shop
  */
 export function focusPlace(place) {
-
-  console.log("1. Enter Focus");
-
-  // Update application state
+   
   enterFocusMode(place);
   renderPlaces(getPlaces());
-
-//addMarkers([place], false);
 
   const item = mapState.markerLookup.get(place.id);
 
@@ -658,18 +632,14 @@ export function focusPlace(place) {
 
   const { marker, infoWindow } = item;
 
-  // Close previous popup
   mapState.infoWindows.forEach(window => window.close());
 
-  // Center map
   mapState.map.panTo(marker.getPosition());
-  console.log("2. Pan");
 
   if (mapState.map.getZoom() < 17) {
     mapState.map.setZoom(17);
   }
 
-  // Update marker appearance
   resetMarkerIcons();
   activateMarker(marker);
 
@@ -681,13 +651,11 @@ export function focusPlace(place) {
     marker.setAnimation(null);
   }, 700);
 
-  // Open popup
   infoWindow.open(
     mapState.map,
     marker
   );
 
-  // Scroll selected card into view
   const card = document.querySelector(
     `[data-place-id="${place.id}"]`
   );
@@ -703,14 +671,11 @@ export function focusPlace(place) {
     rect.bottom <= window.innerHeight;
 
   if (!isVisible) {
-
     card.scrollIntoView({
       behavior: "smooth",
       block: "center"
     });
-    console.log("3. Popup opened");
   }
-
 }
 
 

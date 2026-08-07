@@ -78,9 +78,7 @@ function setupShareButton(clone, place) {
  * Create coffee shop card
  */
 export function createCoffeeCard(template, place) {
-
   const clone = template.content.cloneNode(true);
-
   const locationText = clone.querySelector(".location-text");
 
   if (locationText) {
@@ -94,48 +92,31 @@ export function createCoffeeCard(template, place) {
     return clone;
   }
 
-  // Dataset
   card.dataset.place = place.name;
   card.dataset.placeId = place.id;
-  console.log(
-  "Rendering",
-  place.name,
-  getMapMode(),
-  getActivePlace()?.name
-);
 
-  // Focus Mode visual state
+  console.log("Rendering", place.name, getMapMode(), getActivePlace()?.name);
+
   if (getMapMode() === "focus") {
 
     if (getActivePlace()?.id === place.id) {
-
       card.classList.add("active-card");
-
-    } else {
-
-      card.classList.add("inactive-card");
-
-    }
-    
+      } else {
+        card.classList.add("inactive-card");
+      }
   }
-  console.log(
-  place.name,
-  card.className
-);
+  console.log( place.name, card.className);
 
-  // Click
   card.addEventListener("click", () => {
     focusPlace(place);
   });
 
-  // Basic info
-  clone.querySelector(".place-name").textContent =
+  clone.querySelector(".place-name").textContent = 
     place.name;
 
   clone.querySelector(".place-address").textContent =
-    place.address || "Address not available";
+  place.address || "Address not available";
 
-  // Action buttons
   const actionBar =
     clone.querySelector(".action-bar-container");
 
@@ -147,30 +128,22 @@ export function createCoffeeCard(template, place) {
   setupDirectionButton(clone, place);
   setupShareButton(clone, place);
 
-  // Distance
   const distance =
     clone.querySelector(".distance-value");
 
   if (distance && place.distance) {
-
     distance.textContent =
-      formatDistance(place.distance);
-
+    formatDistance(place.distance);
   }
 
-  // Walking time
   const walking =
     clone.querySelector(".travel-time-value");
 
   if (walking && place.walkingTime) {
-
     walking.textContent =
-      formatTravelTime(place.walkingTime);
-
+    formatTravelTime(place.walkingTime);
   }
-
   return clone;
-
 }
 
 
