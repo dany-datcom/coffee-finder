@@ -41,16 +41,12 @@ export function getCurrentLocation() {
 function mapCoffeeShop(place, idx) {
   return {
     id: idx,
-
     name: place.properties.name || "Untitled Café",
-
     address: place.properties.formatted || "Address not available",
-
     location: {
-        city: place.properties.city,
-        state: place.properties.state
+      city: place.properties.city, 
+      state: place.properties.state
     },
-
     geocodes: {
       main: {
         latitude: place.properties.lat,
@@ -59,6 +55,7 @@ function mapCoffeeShop(place, idx) {
     },
   };
 }
+
 /**
  * Search coffee shops by city name or query
  * Uses proximity bias towards Costa Rica
@@ -158,81 +155,31 @@ export async function reverseGeocode(lat, lng) {
  * @returns {Array} Array of coffee shop objects within bounds
  */
 export async function searchPlacesByBounds(bounds) {
-  // Calculate map center coordinates
   const centerLat = (bounds.south + bounds.north) / 2;
   const centerLng = (bounds.west + bounds.east) / 2;
-
-  console.log(`🗺️ Map center: ${centerLat}, ${centerLng}`);
-
-  const radiusKm = calculateRadius(bounds);
-  console.log(`📏 Search radius: ${radiusKm} km`);
-
-  try {
-    
-    // Search coffee shops using proximity (map center coordinates)
+  
+  try {    
     const searchUrl = `https://api.geoapify.com/v2/places?categories=catering.cafe&bias=proximity:${centerLng},${centerLat}&limit=10&apiKey=${API_KEY}`;
-    
-   
-    console.log(`🌐 API URL: ${searchUrl}`);
-     
-     const searchData = await fetchJson(searchUrl);
-    console.log(`📍 ${searchData.features?.length || 0} coffee shops found`);
-    
+    const searchData = await fetchJson(searchUrl);
+           
     if (!searchData.features) {
       return [];
-    }
+    }  
     
-    // Filter results to only include shops within visible map bounds
-    // Filter results to only include shops within visible map bounds
-const cafesInBounds = searchData.features.filter(place => {
-  const lat = place.properties.lat;
-  const lng = place.properties.lon;
+  const cafesInBounds = searchData.features.filter(place => {
+    const lat = place.properties.lat;
+    const lng = place.properties.lon;
+    const isInBounds =
+      lat >= bounds.south &&
+      lat <= bounds.north &&
+      lng >= bounds.west &&
+      lng <= bounds.east;
+    return isInBounds;
+  });
 
-  const isInBounds =
-    lat >= bounds.south &&
-    lat <= bounds.north &&
-    lng >= bounds.west &&
-    lng <= bounds.east;
-
-  return isInBounds;
-});
-
-console.log(`✅ ${cafesInBounds.length} coffee shops within visible map area`);
-
-// Transform results to application format
-return cafesInBounds.map(mapCoffeeShop);
-  
-    
-  } catch (error) {
-    console.error("❌ Bounds search error:", error);
+  return cafesInBounds.map(mapCoffeeShop);
+      
+  } catch (error) {console.error("❌ Bounds search error:", error);
     return [];
   }
-}
-
-/**
- * Calculate approximate radius of map view in kilometers
- * Uses Haversine formula for distance calculation
- * @param {Object} bounds - Map bounds object
- * @returns {Number} Approximate radius in kilometers
- */
-function calculateRadius(bounds) {
-  const lat1 = bounds.south;
-  const lat2 = bounds.north;
-  const lon1 = bounds.west;
-  const lon2 = bounds.east;
-
-  // Earth's radius in kilometers
-  const R = 6371;
-  
-  // Convert degrees to radians
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-
-  // Haversine formula
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
 }

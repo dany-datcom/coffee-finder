@@ -132,33 +132,19 @@ function debouncedSearch(){
  * Get visible map bounds
  */
 function getMapBounds(){
-
   const bounds = mapState.map.getBounds();
 
-
   if(!bounds){
-
-    console.warn(
-      "⚠️ Map bounds unavailable"
-    );
-
+    console.warn("⚠️ Map bounds unavailable");
     return null;
-
   }
 
-
   return {
-
     south: bounds.getSouthWest().lat(),
-
     north: bounds.getNorthEast().lat(),
-
     west: bounds.getSouthWest().lng(),
-
     east: bounds.getNorthEast().lng()
-
   };
-
 }
 
 
@@ -229,9 +215,7 @@ function getVisiblePlaces(places) {
 }
 
 function isMapInteractive() {
-
-    return getMapMode() === "explore";
-
+  return getMapMode() === "explore";
 }
 
 
@@ -492,122 +476,41 @@ function updateMapStats(total){
  * Search places in visible map area
  */
 async function performBoundsSearch(){
-  console.log(
-  "performBoundsSearch()",
-  getMapMode()
-);
-
   if (!isMapInteractive()) {
-
-  console.log("🔒 Focus Mode - Search skipped");
-
-  return;
-
-}
-
-  const boundsObj =
-    getMapBounds();
-
-
+    return;
+  }
+  const boundsObj = getMapBounds();
 
   if(!boundsObj){
-
     return;
-
   }
-
-
 
   try{
+    setLoading( true, "Searching coffee shops...");
+    renderSkeletonCards();
 
+    const places = await searchPlacesByBounds(boundsObj);
 
-    setLoading(
-  true,
-  "Searching coffee shops..."
-);
-
-renderSkeletonCards();
-
-
-
-    const places =
-      await searchPlacesByBounds(
-        boundsObj
-      );
-
-
-
-    const userLocation =
-      getUserLocation();
-
-
-
+    const userLocation = getUserLocation();
+    
     if(userLocation){
-
-
       places.forEach(place => {
-
-
-        place.distance =
-          calculateDistance(
-            userLocation,
-            place
-          );
-
-
-        place.walkingTime =
-          estimateTravelTime(
-            place.distance
-          );
-
-
+        place.distance = calculateDistance(userLocation, place);
+        place.walkingTime = estimateTravelTime(place.distance);
       });
-
-
     }
 
-
-
-    const sorted =
-      sortPlaces(
-        places,
-        getCurrentSort()
-      );
-
-
-
+    const sorted = sortPlaces(places, getCurrentSort());
     setPlaces(sorted);
-
-
     updateSearchResults(sorted);
-
-
-
-    console.log(
-      `📍 ${sorted.length} coffee shops found`
-    );
-
-
   }
   catch(error){
-
-
-    console.error(
-      "❌ Bounds search error:",
-      error
-    );
-
-
+    console.error("❌ Bounds search error:", error);
   }
+
   finally{
-
-
     setLoading(false);
-
-
   }
-
-
 }
 
 
