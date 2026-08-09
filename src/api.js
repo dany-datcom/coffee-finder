@@ -54,7 +54,9 @@ function mapCoffeeShop(place, idx) {
       },
     },
   };
+  
 }
+
 
 /**
  * Search coffee shops by city name or query
