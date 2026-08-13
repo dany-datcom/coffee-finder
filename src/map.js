@@ -1,25 +1,35 @@
 /**
- * Google Maps integration and marker management
- * Handles map initialization, marker placement, and map interactions
- * Implements dynamic search when user moves or zooms the map
+ * @file map.js
+ * @module Map
+ * @description Google Maps integration and marker management module.
+ * Handles map initialization, custom marker placement, user interactions,
+ * and dynamic search bound triggers.
  */
 
 /* global google */
 
+// 1. UI & Visualization Modules
 import { mapTheme } from "./mapTheme.js";
-import { searchPlacesByBounds, reverseGeocode } from "./api.js";
 import { renderPlaces, updateMapStatus,renderSkeletonCards } from "./ui.js";
-import { setLoading } from "./utils/loading.js";
+// 2. API & Network Services
+import { searchPlacesByBounds, reverseGeocode } from "./api.js";
+// 3. Application State Management
 import {
   setPlaces,
   getCurrentSort,
   getUserLocation,
-  getPlaces
+  getPlaces, 
+  setMapMode, 
+  setActivePlace, 
+  getMapMode, 
+  getActivePlace
 } from "./state/appState.js";
+// 4. Utility & Helper Functions
+import { setLoading } from "./utils/loading.js";
 import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
-import { setMapMode, setActivePlace, getMapMode, getActivePlace } from "./state/appState.js";
+
 
 const MARKER_ICON = {
   url: "/assets/coffee-marker.svg",
