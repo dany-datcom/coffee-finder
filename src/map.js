@@ -30,20 +30,37 @@ import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
 
-
+/**
+ * Custom marker icon configuration for default coffee shop pins.
+ * @type {google.maps.Icon}
+ */
 const MARKER_ICON = {
   url: "/assets/coffee-marker.svg",
   scaledSize: new google.maps.Size(42, 52),
   anchor: new google.maps.Point(21, 52)
 };
 
+/**
+ * Custom marker icon configuration for the currently active/selected coffee shop pin.
+ * @type {google.maps.Icon}
+ */
 const ACTIVE_MARKER_ICON = {
   url: "/assets/coffee-marker-active.svg",
   scaledSize: new google.maps.Size(46, 56),
   anchor: new google.maps.Point(23, 56)
 };
 
-
+/**
+ * Internal module state registry for managing map instances, markers, and UI modes.
+ * @type {Object}
+ * @property {google.maps.Map|null} map - Active Google Maps instance.
+ * @property {Array<google.maps.Marker>} markers - Active map marker instances.
+ * @property {Array<google.maps.InfoWindow>} infoWindows - Active InfoWindow instances.
+ * @property {number|null} searchTimeout - Timeout ID for debouncing bounds search.
+ * @property {Map<string|number, google.maps.Marker>} markerLookup - Fast O(1) marker lookup map by place ID.
+ * @property {Object|null} activePlace - Currently highlighted coffee shop place data.
+ * @property {string} mode - Current interaction mode (e.g., 'explore').
+ */
 const mapState = {
   map: null,
   markers: [],
@@ -54,12 +71,14 @@ const mapState = {
   mode: "explore"
 };
 
-
 /**
- * Initialize Google Map
+ * Initializes the Google Maps instance inside the '#map' DOM container.
+ * Configures default center coordinates (San José, Costa Rica), initial zoom level,
+ * and custom brand styling, then binds interactive event listeners.
+ * 
+ * @returns {void}
  */
 export function createMap() {
-
   mapState.map = new google.maps.Map(
     document.getElementById("map"),
     {
@@ -67,79 +86,57 @@ export function createMap() {
         lat: 9.9281,
         lng: -84.0907
       },
-
       zoom: 13,
-
       styles: mapTheme
     }
   );
 
-
-  console.log("✅ Map created");
-
   setupMapListeners();
-
 }
 
-
-
 /**
- * Setup map listeners
+ * Binds interaction event listeners to the active Google Maps instance.
+ * Triggers a debounced place search whenever the user finishes panning ('dragend')
+ * or altering the camera zoom level ('zoom_changed').
+ * 
+ * @private
+ * @returns {void}
  */
-function setupMapListeners(){
+function setupMapListeners(){ 
+  mapState.map.addListener("dragend", () => {
+    console.log("🖱️ User moved map");
+    debouncedSearch();
+  });
 
-  mapState.map.addListener(
-    "dragend",
-    () => {
-
-      console.log("🖱️ User moved map");
-
-      debouncedSearch();
-
-    }
-  );
-
-
-  mapState.map.addListener(
-    "zoom_changed",
-    () => {
-
-      console.log("🔍 User changed zoom");
-
-      debouncedSearch();
-
-    }
-  );
-
+  mapState.map.addListener("zoom_changed", () => {
+    console.log("🔍 User changed zoom");
+    debouncedSearch();
+  });
 }
 
-
-
 /**
- * Prevent excessive API calls
+ * Debounces the map bounds search to prevent excessive API requests during navigation.
+ * Cancels any active timeout and resets a timer before executing `performBoundsSearch`.
+ * 
+ * @private
+ * @returns {void}
  */
 function debouncedSearch(){
+  clearTimeout(mapState.searchTimeout);
 
-  clearTimeout(
-    mapState.searchTimeout
-  );
-
-
-  mapState.searchTimeout = setTimeout(
-    () => {
-
-      performBoundsSearch();
-
-    },
-    800
-  );
-
+  mapState.searchTimeout = setTimeout( () => {
+    performBoundsSearch();
+  }, 800);
 }
 
 
 
 /**
- * Get visible map bounds
+ * Extracts the geographic bounding box coordinates of the currently visible map area.
+ * Converts Google Maps LatLngBounds into a plain JS object suitable for API requests.
+ * 
+ * @private
+ * @returns {{south: number, north: number, west: number, east: number}|null} Bounding box coordinates object, or null if map bounds are not ready.
  */
 function getMapBounds(){
   const bounds = mapState.map.getBounds();
@@ -160,42 +157,60 @@ function getMapBounds(){
 
 
 /**
- * Remove existing markers
+ * Removes all active markers and InfoWindows from the map.
+ * Detaches Google Maps instances and flushes internal state registries
+ * to prevent memory leaks during view updates.
+ * 
+ * @private
+ * @returns {void}
  */
 function clearMarkersAndInfoWindows(){
-
   mapState.markers.forEach(
     marker => marker.setMap(null)
   );
-
 
   mapState.infoWindows.forEach(
     infoWindow => infoWindow.close()
   );
 
-
   mapState.markers = [];
-
   mapState.infoWindows = [];
-
   mapState.markerLookup.clear();
-
 }
 
+/**
+ * Switches the map interaction mode to 'focus' and highlights the selected coffee shop.
+ * 
+ * @private
+ * @param {Object} place - The coffee shop object to focus on.
+ * @returns {void}
+ */
 function enterFocusMode(place) {
   setMapMode("focus");
   setActivePlace(place);
-};
+}
 
+/**
+ * Resets the map interaction mode back to 'explore' and clears the active place selection.
+ * 
+ * @private
+ * @returns {void}
+ */
 function exitFocusMode() {
   setMapMode("explore");
   setActivePlace(null);
-  
-  console.log("☕ Exit Focus Mode");
 }
 
+/**
+ * Filters the list of coffee shops based on the current map view mode.
+ * In 'explore' mode, returns all places. In 'focus' mode, returns an array containing
+ * solely the focused place, or resets to 'explore' mode if the place is no longer available.
+ * 
+ * @private
+ * @param {Array<Object>} places - List of coffee shop place objects to filter.
+ * @returns {Array<Object>} Array containing all places or strictly the active focused place.
+ */
 function getVisiblePlaces(places) {
-
   if (getMapMode() !== "focus") {
     return places;
   }
@@ -214,129 +229,82 @@ function getVisiblePlaces(places) {
   return [exists];
 }
 
+/**
+ * Checks whether the map is currently in an interactive exploration state.
+ * 
+ * @private
+ * @returns {boolean} `true` if the map mode is 'explore', `false` otherwise.
+ */
 function isMapInteractive() {
   return getMapMode() === "explore";
 }
 
-
-
-
-
 /**
- * Create marker
+ * Creates a custom Google Maps marker and associated InfoWindow for a coffee shop place.
+ * Binds click events for place selection, updates lookup maps, and expands map bounds.
+ * 
+ * @private
+ * @param {Object} place - The coffee shop place object containing geocode data.
+ * @param {google.maps.LatLngBounds} bounds - Google Maps bounds object to extend with place coordinates.
+ * @returns {void}
  */
 function createMarker(place, bounds){
-
-
-  const lat =
-    place.geocodes?.main?.latitude;
-
-
-  const lng =
-    place.geocodes?.main?.longitude;
-
-
+  const lat = place.geocodes?.main?.latitude;
+  const lng = place.geocodes?.main?.longitude;
 
   if(lat == null || lng == null){
-
-    console.warn(
-      `⚠️ Invalid coordinates for ${place.name}`
-    );
-
+    console.warn(`⚠️ Invalid coordinates for ${place.name}`);
     return;
-
   }
 
-
-
-  const marker =
-  new google.maps.Marker({
-
+  const marker = new google.maps.Marker({
     position: { lat, lng },
-
     map: mapState.map,
-
     title: place.name,
-
     icon: MARKER_ICON
-
-});
-
-
-
-  const infoWindow =
-    createInfoWindow(place);
-
-
+  });
+  
+  const infoWindow = createInfoWindow(place);
 
   marker.addListener("click", () => {
-
-  if (
-    (getMapMode() === "focus") &&
-    getActivePlace()?.id !== place.id
-  ) 
-    
-
-  mapState.infoWindows.forEach(window =>
-    window.close()
-  );
-
-  infoWindow.open(
-    mapState.map,
-    marker
-  );
-
-  focusPlace(place);
-
-});
-
-
-
-  mapState.markerLookup.set(
-    place.id,
-    {
-      marker,
-      infoWindow,
-      place
+    if (getMapMode() === "focus" && getActivePlace()?.id !== place.id) {    
+    mapState.infoWindows.forEach(window => window.close());
     }
-  );
 
-
-
-  mapState.markers.push(marker);
-
-  mapState.infoWindows.push(infoWindow);
-
-
-
-  bounds.extend({
-    lat,
-    lng
+    infoWindow.open(mapState.map, marker);
+    focusPlace(place);
   });
 
-
+  mapState.markerLookup.set(place.id,{ 
+    marker, 
+    infoWindow, 
+    place
+  });
+  
+  mapState.markers.push(marker);
+  mapState.infoWindows.push(infoWindow);
+  
+  bounds.extend({lat, lng});
 }
 
-
-
 /**
- * Create popup window
+ * Creates a configured Google Maps InfoWindow instance with coffee shop details
+ * and an external navigation link. Listens for the 'closeclick' event to restore exploration mode.
+ * 
+ * @private
+ * @param {Object} place - The coffee shop place object containing location and coordinate details.
+ * @returns {google.maps.InfoWindow} Configured Google Maps InfoWindow instance.
  */
 function createInfoWindow(place) {
+  const city = place.location?.city || "";
+  const state = place.location?.state || "";
+  const locationText = [city, state].filter(Boolean).join(", ") || "Address unavailable";
 
   const infoWindow = new google.maps.InfoWindow({
-
     content: `
       <div class="map-popup">
-
-        <h3 class="popup-title">
-          ${place.name}
-        </h3>
-
-        <p class="popup-address">
-          ${place.location.city}, ${place.location.state}
-        </p>
-
+        <h3 class="popup-title">${place.name}</h3>
+        <p class="popup-address">${locationText}</p>
         <a
           class="popup-button"
           target="_blank"
@@ -345,61 +313,45 @@ function createInfoWindow(place) {
         >
           🧭 Open in Google Maps
         </a>
-
       </div>
     `
-
   });
 
   infoWindow.addListener("closeclick", () => {
-
     exitFocusMode();
-
     performBoundsSearch();
-
   });
 
   return infoWindow;
-
 }
 
 
 
 /**
- * Fit markers into view
+ * Adjusts the map camera to encompass all active markers within the viewport.
+ * Automatically fits bounds for multiple markers, or centers with a comfortable zoom level (16)
+ * if only a single marker is present.
+ * 
+ * @private
+ * @param {google.maps.LatLngBounds} bounds - Google Maps LatLngBounds instance containing marker coordinates.
+ * @returns {void}
  */
 function fitMarkersOnMap(bounds){
-
-
   if(mapState.markers.length === 0){
-
     return;
-
   }
-
-
 
   if(mapState.markers.length > 1){
-
-
     mapState.map.fitBounds(bounds);
-
-
   }
+
   else{
-
-
     mapState.map.setCenter(
       mapState.markers[0].getPosition()
     );
 
-
     mapState.map.setZoom(16);
-
-
   }
-
-
 }
 
 
