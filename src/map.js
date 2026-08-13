@@ -132,33 +132,19 @@ function debouncedSearch(){
  * Get visible map bounds
  */
 function getMapBounds(){
-
   const bounds = mapState.map.getBounds();
 
-
   if(!bounds){
-
-    console.warn(
-      "⚠️ Map bounds unavailable"
-    );
-
+    console.warn("⚠️ Map bounds unavailable");
     return null;
-
   }
 
-
   return {
-
     south: bounds.getSouthWest().lat(),
-
     north: bounds.getNorthEast().lat(),
-
     west: bounds.getSouthWest().lng(),
-
     east: bounds.getNorthEast().lng()
-
   };
-
 }
 
 
@@ -187,16 +173,9 @@ function clearMarkersAndInfoWindows(){
 }
 
 function enterFocusMode(place) {
-
   setMapMode("focus");
   setActivePlace(place);
-
-  console.log({
-  mode: getMapMode(),
-  activePlace: getActivePlace()
-});
-
-}
+};
 
 function exitFocusMode() {
   setMapMode("explore");
@@ -218,20 +197,15 @@ function getVisiblePlaces(places) {
   );
 
   if (!exists) {
-
     exitFocusMode();
-
     return places;
-
   }
 
   return [exists];
 }
 
 function isMapInteractive() {
-
-    return getMapMode() === "explore";
-
+  return getMapMode() === "explore";
 }
 
 
@@ -424,9 +398,7 @@ function fitMarkersOnMap(bounds){
  * Update UI after search
  */
 async function updateSearchResults(places){
-
-const visiblePlaces = getVisiblePlaces(places);
-
+  const visiblePlaces = getVisiblePlaces(places);
   renderPlaces(visiblePlaces);
 
   addMarkers(
@@ -434,25 +406,17 @@ const visiblePlaces = getVisiblePlaces(places);
     false
   );
 
-
   updateMapStats(
     places.length
   );
 
-
-
-  const center =
-    mapState.map.getCenter();
-
-
+  const center = mapState.map.getCenter();
 
   const location =
     await reverseGeocode(
       center.lat(),
       center.lng()
     );
-
-
 
   updateMapStatus(
     location,
@@ -492,122 +456,41 @@ function updateMapStats(total){
  * Search places in visible map area
  */
 async function performBoundsSearch(){
-  console.log(
-  "performBoundsSearch()",
-  getMapMode()
-);
-
   if (!isMapInteractive()) {
-
-  console.log("🔒 Focus Mode - Search skipped");
-
-  return;
-
-}
-
-  const boundsObj =
-    getMapBounds();
-
-
+    return;
+  }
+  const boundsObj = getMapBounds();
 
   if(!boundsObj){
-
     return;
-
   }
-
-
 
   try{
+    setLoading( true, "Searching coffee shops...");
+    renderSkeletonCards();
 
+    const places = await searchPlacesByBounds(boundsObj);
 
-    setLoading(
-  true,
-  "Searching coffee shops..."
-);
-
-renderSkeletonCards();
-
-
-
-    const places =
-      await searchPlacesByBounds(
-        boundsObj
-      );
-
-
-
-    const userLocation =
-      getUserLocation();
-
-
-
+    const userLocation = getUserLocation();
+    
     if(userLocation){
-
-
       places.forEach(place => {
-
-
-        place.distance =
-          calculateDistance(
-            userLocation,
-            place
-          );
-
-
-        place.walkingTime =
-          estimateTravelTime(
-            place.distance
-          );
-
-
+        place.distance = calculateDistance(userLocation, place);
+        place.walkingTime = estimateTravelTime(place.distance);
       });
-
-
     }
 
-
-
-    const sorted =
-      sortPlaces(
-        places,
-        getCurrentSort()
-      );
-
-
-
+    const sorted = sortPlaces(places, getCurrentSort());
     setPlaces(sorted);
-
-
     updateSearchResults(sorted);
-
-
-
-    console.log(
-      `📍 ${sorted.length} coffee shops found`
-    );
-
-
   }
   catch(error){
-
-
-    console.error(
-      "❌ Bounds search error:",
-      error
-    );
-
-
+    console.error("❌ Bounds search error:", error);
   }
+
   finally{
-
-
     setLoading(false);
-
-
   }
-
-
 }
 
 
@@ -722,15 +605,14 @@ export function clearMap(){
 }
 
 function resetMarkerIcons() {
-
   mapState.markerLookup.forEach(item => {
     item.marker.setIcon(MARKER_ICON);
   });
-
 }
-  function activateMarker(marker) {
-    marker.setIcon(ACTIVE_MARKER_ICON);
-  }
+  
+function activateMarker(marker) {
+  marker.setIcon(ACTIVE_MARKER_ICON);
+ }
 
 
 
@@ -738,14 +620,9 @@ function resetMarkerIcons() {
  * Focus selected coffee shop
  */
 export function focusPlace(place) {
-
-  console.log("1. Enter Focus");
-
-  // Update application state
+   
   enterFocusMode(place);
   renderPlaces(getPlaces());
-
-//addMarkers([place], false);
 
   const item = mapState.markerLookup.get(place.id);
 
@@ -755,18 +632,14 @@ export function focusPlace(place) {
 
   const { marker, infoWindow } = item;
 
-  // Close previous popup
   mapState.infoWindows.forEach(window => window.close());
 
-  // Center map
   mapState.map.panTo(marker.getPosition());
-  console.log("2. Pan");
 
   if (mapState.map.getZoom() < 17) {
     mapState.map.setZoom(17);
   }
 
-  // Update marker appearance
   resetMarkerIcons();
   activateMarker(marker);
 
@@ -778,13 +651,11 @@ export function focusPlace(place) {
     marker.setAnimation(null);
   }, 700);
 
-  // Open popup
   infoWindow.open(
     mapState.map,
     marker
   );
 
-  // Scroll selected card into view
   const card = document.querySelector(
     `[data-place-id="${place.id}"]`
   );
@@ -800,14 +671,11 @@ export function focusPlace(place) {
     rect.bottom <= window.innerHeight;
 
   if (!isVisible) {
-
     card.scrollIntoView({
       behavior: "smooth",
       block: "center"
     });
-    console.log("3. Popup opened");
   }
-
 }
 
 
