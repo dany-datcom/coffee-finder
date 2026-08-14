@@ -1,7 +1,8 @@
 /**
- * Main application router and entry point
- * Handles navigation between pages (Home, Favorites, About)
- * Uses hash-based routing for single-page application
+ * @file main.js - Client-side SPA Router and Application Entry Point.
+ * @description Coordinates page navigation, renders global layout components (Navbar, Footer),
+ * and maps hash-based routes (#home, #favorites, #about) to page render functions.
+ * @module main
  */
 
 import { renderNavbar } from "./components/navbar.js";
@@ -11,36 +12,38 @@ import { renderFavoritesPage } from "./pages/favorites.js";
 import { renderAboutPage } from "./pages/about.js";
 
 /**
- * Router function that handles page navigation
- * Renders appropriate navbar and page content based on current hash
+ * Client-side hash router function.
+ * Parses the current window location hash, updates global layout elements,
+ * and dynamically invokes the matching page render function.
+ * Implements fallback handling to default to the 'home' page for unknown routes.
+ * 
+ * @private
+ * @returns {void}
  */
+
 function router() {
-  const hash = window.location.hash.substring(1) || "home";
+  const rawHash = window.location.hash.substring(1);
+  const cleanHash = rawHash.split("?")[0] || "home";
 
-  console.log(`📄 Navigating to: ${hash}`);
-
-  // Render navbar with active state indicator
-  renderNavbar(hash);
-
-  // Render footer (same on all pages)
+  console.log(`📄 Navigating to: ${cleanHash}`);
+  
+  window.scrollTo(0, 0);
+  
+  renderNavbar(cleanHash);
   renderFooter();
 
-  // Render page content based on current route
   const routes = {
     home: renderHomePage,
     favorites: renderFavoritesPage,
     about: renderAboutPage,
   };
 
-  const renderPage = routes[hash] || renderHomePage;
-
+  const renderPage = routes[cleanHash] || renderHomePage;
   renderPage();
 }
 
-// Listen for hash changes to trigger navigation
 window.addEventListener("hashchange", router);
 
-// Initialize application on page load
 window.addEventListener("load", () => {
   console.log("🚀 Application started");
   router();
