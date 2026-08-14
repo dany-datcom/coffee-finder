@@ -54,7 +54,6 @@ function mapCoffeeShop(place, idx) {
       },
     },
   };
-  
 }
 
 

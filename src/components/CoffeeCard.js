@@ -131,7 +131,7 @@ export function createCoffeeCard(template, place) {
   const distance =
     clone.querySelector(".distance-value");
 
-  if (distance && place.distance) {
+  if (distance && place.distance ) {
     distance.textContent =
     formatDistance(place.distance);
   }
