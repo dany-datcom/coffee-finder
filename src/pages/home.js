@@ -5,9 +5,9 @@
  */
 
 import { setLoading } from "../utils/loading.js";
-import { geocodeCity, getCurrentLocation, reverseGeocode,} from "../api.js";
+import { geocodeCity, getUserLocation, reverseGeocode,} from "../api.js";
 import { createHero } from "../components/hero.js";
-import { setUserLocation, getPlaces, setCurrentSort, getCurrentSort, setLoadingState,isLoading} from "../state/appState.js";
+import { setUserLocation, getPlace, setCurrentSort, getCurrentSort, setLoadingState,isLoading} from "../state/appState.js";
 import { sortPlaces } from "../utils/sorting.js";
 import { renderPlaces } from "../ui.js";
 
@@ -20,7 +20,7 @@ function setupSorting() {
 
     setCurrentSort(select.value);
 
-    const places = getPlaces();
+    const places = getPlace();
 
     const sorted = sortPlaces(places, getCurrentSort());
 
@@ -208,7 +208,7 @@ export async function renderHomePage() {
   createMap();
 
   try {
-    const coordinates = await getCurrentLocation();
+    const coordinates = await getUserLocation();
     setUserLocation(coordinates);
 
     const location = await reverseGeocode(

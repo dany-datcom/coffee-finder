@@ -15,10 +15,10 @@ import { renderPlaces, updateMapStatus,renderSkeletonCards } from "./ui.js";
 import { searchPlacesByBounds, reverseGeocode } from "./api.js";
 // 3. Application State Management
 import {
-  setPlaces,
+  setPlace,
   getCurrentSort,
   getUserLocation,
-  getPlaces, 
+  getPlace, 
   setMapMode, 
   setActivePlace, 
   getMapMode, 
@@ -451,7 +451,7 @@ async function performBoundsSearch(){
     }
 
     const sorted = sortPlaces(places, getCurrentSort());
-    setPlaces(sorted);
+    setPlace(sorted);
     updateSearchResults(sorted);
   } catch(error){
     console.error("❌ Bounds search error:", error);
@@ -562,7 +562,7 @@ function activateMarker(marker) {
  */
 export function focusPlace(place) {
   enterFocusMode(place);
-  renderPlaces(getPlaces());
+  renderPlaces(getPlace());
 
   const item = mapState.markerLookup.get(place.id);
 

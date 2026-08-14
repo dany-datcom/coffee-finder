@@ -35,7 +35,7 @@ async function fetchJson(url) {
  * @returns {Promise<{lat: number, lng: number}>} Resolves with latitude and longitude object on user approval.
  * @throws {GeolocationPositionError} Rejects if user denies permission or location service times out.
  */
-export function getCurrentLocation() {
+export function getUserLocation() {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
