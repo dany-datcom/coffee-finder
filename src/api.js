@@ -1,10 +1,22 @@
 /**
- * API integration for Geoapify service
- * Handles geocoding, reverse geocoding, and location searches
- * Provides functions for searching coffee shops by location and bounds
+ * @file api.js - Geoapify API Integration Service.
+ * @description Handles external HTTP communication with Geoapify REST endpoints.
+ * Provides functions for forward geocoding, reverse geocoding, and spatial bounding-box searches for coffee shops.
+ * @module services/api
  */
 
 const API_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
+
+/**
+ * Generic HTTP helper that fetches resources from a URL and parses the JSON response.
+ * Safely handles HTTP error status codes (4xx/5xx) by throwing an explicit Error instance.
+ * 
+ * @private
+ * @async
+ * @param {string} url - Complete REST API endpoint URL to request.
+ * @returns {Promise<Object>} Parsed JSON payload returned by the server.
+ * @throws {Error} Throws if the HTTP response status code is outside the 200-299 range.
+ */
 
 async function fetchJson(url) {
   const response = await fetch(url);
@@ -17,8 +29,12 @@ async function fetchJson(url) {
 }  
 
 /**
- * Get the user's current location from the browser.
- * @returns {Promise<{lat:number,lng:number}|null>}
+ * Wraps the browser's native Geolocation API in a modern JavaScript Promise.
+ * Promisifies `navigator.geolocation.getCurrentPosition` to enable clean async/await syntax.
+ * 
+ * @exports getCurrentLocation
+ * @returns {Promise<{lat: number, lng: number}>} Resolves with latitude and longitude object on user approval.
+ * @throws {GeolocationPositionError} Rejects if user denies permission or location service times out.
  */
 export function getCurrentLocation() {
   return new Promise((resolve, reject) => {
@@ -36,8 +52,15 @@ export function getCurrentLocation() {
   });
 }
 
-
-
+/**
+ * Maps raw Geoapify place features into a clean, normalized internal CoffeeShop domain object.
+ * Applies defensive fallbacks for missing names or addresses and structures coordinate metadata.
+ * 
+ * @private
+ * @param {Object} place - Raw GeoJSON feature object retrieved from Geoapify API.
+ * @param {number} idx - Index position within the response array (used as fallback ID).
+ * @return {CoffeeShop} Normalized coffee shop place object.
+ */
 function mapCoffeeShop(place, idx) {
   return {
     id: idx,
