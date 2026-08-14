@@ -1,3 +1,9 @@
+/**
+ * @file variables.css - Global Design Tokens & Theme Configuration.
+ * @description Centralized CSS Custom Properties defining the visual hierarchy,
+ * color palette, typography scales, layout dimensions, and micro-interactions.
+ * @module styles/variables
+ */
 :root {
     /* Colors */
     --color-primary: #064E3B;

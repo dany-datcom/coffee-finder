@@ -201,7 +201,6 @@ export async function renderHomePage() {
 
   // Initialize search form
   setupSearch();
-
   setupSorting();
 
   // Initialize Google Map
@@ -210,12 +209,13 @@ export async function renderHomePage() {
 
   try {
     const coordinates = await getCurrentLocation();
+    setUserLocation(coordinates);
 
     const location = await reverseGeocode(
       coordinates.lat, 
       coordinates.lng
     );
-    setUserLocation(location);
+    
     centerMapOnCity(
       location.lat, 
       location.lng
@@ -224,10 +224,6 @@ export async function renderHomePage() {
     console.warn("Location not available:", error.message);
   }
 
-
-setUserLocation(location);
-
-centerMapOnCity(location.lat, location.lng);
 }
 
 /**

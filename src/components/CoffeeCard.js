@@ -2,11 +2,9 @@ import { formatDistance } from "../utils/distance.js";
 import { formatTravelTime } from "../utils/travelTime.js";
 import { createActionBar } from "./actionBar.js";
 import { saveFavorite } from "../storage.js";
-import { focusPlace } from "../map.js";
+import { focusPlace, highlightMarker } from "../map.js";
 import {sharePlace} from "../services/shareService.js";
 import { getMapMode, getActivePlace } from "../state/appState.js";
-
-
 
 /**
  * Setup favorite button behavior
@@ -107,6 +105,10 @@ export function createCoffeeCard(template, place) {
   }
   console.log( place.name, card.className);
 
+  card.addEventListener("mouseenter", () => {
+  highlightMarker(place);
+});
+
   card.addEventListener("click", () => {
     focusPlace(place);
   });
@@ -131,7 +133,7 @@ export function createCoffeeCard(template, place) {
   const distance =
     clone.querySelector(".distance-value");
 
-  if (distance && place.distance) {
+  if (distance && place.distance ) {
     distance.textContent =
     formatDistance(place.distance);
   }

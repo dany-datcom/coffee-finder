@@ -43,8 +43,8 @@ export function setMapMode(mode) {
   appState.mapMode = mode;
 }
 
-export function setActivePlace(place) {
-  appState.activePlace = place;
+export function setActivePlace(places) {
+  appState.activePlace = places;
 }
 
 export function getMapMode() {

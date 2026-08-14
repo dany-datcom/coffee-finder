@@ -1,9 +1,18 @@
+/**
+ * @file navbar.css - Application Navigation Bar Styles.
+ * @description Controls layout, sticky positioning, brand identity logo,
+ * and interactive menu navigation states using global design tokens.
+ * @module styles/navbar
+ */
+
+/* 1. MAIN NAVBAR CONTAINER */
 #navbar {
     position: sticky;
     top: 0;
-    z-index: var(--z-toast);
-    background: var(--color-primary);
-    border-bottom: 1px solid var(--color-border);
+    z-index: var(--z-sticky);
+    min-height: var(--navbar-height);
+    background-color: var(--color-primary);
+    border-bottom: 1px solid var(--color-primary-hover);
     box-shadow: var(--shadow-sm);
 }
 
@@ -17,62 +26,7 @@
     gap: var(--space-2xl);
 }
 
-.navbar-menu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--space-2xl);
-    flex: 1;
-}
-
-.nav-link {
-    position: relative;
-    color: var(--color-secondary);
-    text-decoration: none;
-    font-family: var(--font-heading);
-    font-size: var(--font-size-md);
-    font-weight: var(--font-medium);
-    transition: var(--transition-normal);
-}
-
-.nav-link::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: calc(var(--space-sm) * -1);
-    width: 0;
-    height: 3px;
-    background: var(--color-secondary);
-    border-radius: var(--radius-round);
-    transition: var(--transition-normal);
-}
-
-.nav-link.active::after{
-    width:100%;
-}
-
-.nav-link:hover::after{
-    width:100%;
-}
-
-.nav-link:hover{
-    color: white;
-    transform: translateY(-2px);
-}
-
-.nav-link.active{
-    color:var(--color-secondary);
-    font-weight:var(--font-semibold);
-}
-
-.navbar-tagline {
-    color: var(--color-secondary-dark);
-    font-family: var(--font-body);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-medium);
-    white-space: nowrap;
-}
-
+/*2. BRANDING / LOGO GROUP*/
 .logo-link{
     color: var(--color-secondary);
     text-decoration:none;
@@ -82,7 +36,7 @@
 }
 
 .logo-icon {
-  font-size: 2rem;
+  font-size: var(--font-size-2xl);
   flex-shrink: 0;
 }
 
@@ -101,8 +55,63 @@
 }
 
 .logo-subtitle{
-  margin-top:.25rem;
+  margin-top:var(--space-xs);
   color: var(--color-secondary-dark);
   font-size: var(--font-size-sm);
-  font-family:"Inter",sans-serif;
+  font-family: var(--font-body);
+}
+
+/*3. NAVIGATION MENU & LINKS*/
+.navbar-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-2xl);
+    flex: 1;
+}
+
+.nav-link {
+    position: relative;
+    color: var(--color-secondary);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-medium);
+    transition: var(--transition-normal), transform var(--transition-normal);
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: calc(var(--space-sm) * -1);
+    width: 0;
+    height: 3px;
+    background: var(--color-secondary);
+    border-radius: var(--radius-round);
+    transition: var(--transition-normal);
+}
+
+.nav-link.active::after,
+.nav-link:hover::after{
+    width:100%;
+}
+
+
+.nav-link:hover{
+    color: var(--color-secondary-dark);
+    transform: translateY(-2px);
+}
+
+.nav-link.active{
+    color:var(--color-secondary);
+    font-weight:var(--font-semibold);
+}
+/*4. NAVBAR TAGLINE*/
+.navbar-tagline {
+    color: var(--color-secondary-dark);
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-medium);
+    white-space: nowrap;
 }
