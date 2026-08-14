@@ -1,3 +1,11 @@
+/**
+ * @file map-popup.css - Map Popup Component Styles.
+ * @description Controls layout, typography, and interactive button states 
+ * for Leaflet/Mapbox popups using global design tokens.
+ * @module styles/map-popup
+ */
+
+/* Container Main Layout */
 .map-popup{
     width: 240px;
     padding:var(--space-md);
@@ -6,35 +14,44 @@
     gap: var(--space-sm);
 }
 
-
+/* Header / Title */
 .popup-title{
-    text-align: center;
     margin: 0;
+    margin-bottom: var(--space-sm);
+    text-align: center;
+    font-family: var(--font-heading);
     font-size: var(--font-size-md);
     color: var(--color-text);
-    margin-bottom: var(--space-sm);
+    
 }
-
+/* Subtitle / Address Details */
 .popup-address{
-
     margin: 0;
+    font-family: var(--font-body);
     font-size: var(--font-size-sm);
     color: var(--color-text-light);
 }
 
+/* Call to Action Button */
 .popup-button{
     display:inline-block;
-    transition:background .2s ease;
     margin-top:var(--space-sm);
+    padding:var(--space-sm) var(--space-md);
+    
     text-align:center;
     text-decoration:none;
-    padding:10px;
-    border-radius:var(--radius-md);
+    font-family: var(--font-body);
+    font-weight:var(--font-semibold);
+    font-size:var(--font-size-sm);
+    
+    color:var(--color-surface); 
     background:var(--color-primary);
-    color:white;
-    font-weight:600;
+    border-radius:var(--radius-md);    
+    
+    transition:background-color var(--transition-fast);
 }
 
+/* Button Hover State */
 .popup-button:hover{
-    opacity:.9;
+    background-color: var(--color-primary-hover);
 }

@@ -1,177 +1,81 @@
-.place-name{
-  font-size:1.1rem;
-  font-weight:700;
-  color:var(--color-primary);
-  margin:0;
+/**
+ * @file place-card.css - Place Cards, Filter Toolbar & Skeleton Loaders.
+ * @description Controls typography, tag badges, dropdown sort controls,
+ * and animated skeleton loading placeholders using global design tokens.
+ * @module styles/place-card
+ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-3xl);
+    min-height: 350px;
+    color: var(--color-text-light);
 }
 
-.place-address{
-  margin:0;
-  color:var(--color-text-secondary);
-  font-size:.92rem;
-  line-height:1.5;
+.empty-icon {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--space-lg);
+    color: var(--color-text-light);
 }
 
-.place-tags{
-  display:flex;
-  gap:.5rem;
-  flex-wrap:wrap;
+.empty-state h3 {
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
 }
 
-.place-tag{
-  padding:.35rem .75rem;
-  background:var(--color-secondary);
-  color:var(--color-primary);
-  border-radius:999px;
-  font-size:.75rem;
-  font-weight:600;
+.empty-state p {
+    max-width: 320px;
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--font-size-md);
+    line-height: 1.7;
+}
+/* ==========================================================================
+   SKELETON LOADING PLACEHOLDERS (UI States)
+   ========================================================================== */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-border);
+    border-radius: var(--radius-sm);
 }
 
-
-
-.tag-icon {
-    width: 16px;
-    height: 16px;
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    animation: skeleton-loading 1.2s infinite;
 }
 
-.results-toolbar{
-    display:flex;
-    gap:var(--space-sm);
-    margin-bottom:var(--space-lg);
+.skeleton-title {
+    width: 70%;
+    height: 22px;
 }
 
-.results-toolbar label{
-
-    color:var(--color-text-light);
-    font-size:var(--font-size-md);
-    font-weight:var(--font-medium);
-
+.skeleton-line {
+    height: 14px;
+    margin-top: var(--space-sm);
 }
 
-#sort-select-wrapper{
-
-    position:relative;
-    display:flex;
-    align-items:center;
-
+.skeleton-line.short {
+    width: 55%;
 }
 
-
-
-#sort-select:hover{
-
-    border-color:var(--color-primary);
-
-}
-
-#sort-select:focus{
-
-    outline:none;
-
-    border-color:var(--color-primary);
-
-    
-}
-
-#sort-select{
-
-    appearance:none;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-
-    padding:
-        var(--space-sm)
-        calc(var(--space-xl) + 12px)
-        var(--space-sm)
-        var(--space-md);
-
-    border:1px solid var(--color-border);
-    border-radius:var(--radius-round);
-
-    background:var(--color-surface);
-    color:var(--color-text);
-    font-size:var(--font-size-sd);
-    cursor:pointer;
-    transition:var(--transition-fast);
-
-}
-
-.sort-icon{
-
-    position:absolute;
-    right:12px;
-    pointer-events:none;
-    color:var(--color-text-light);
-    width:18px;
-    height:18px;
-    transition:var(--transition-fast);
-
-}
-
-.skeleton{
-
-    background:#ececec;
-
-    border-radius:8px;
-
-    position:relative;
-
-    overflow:hidden;
-
-}
-
-.skeleton::after{
-
-    content:"";
-
-    position:absolute;
-
-    inset:0;
-
-    transform:translateX(-100%);
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,.6),
-            transparent
-        );
-
-    animation:
-        skeleton-loading
-        1.2s
-        infinite;
-
-}
-
-.skeleton-title{
-
-    width:70%;
-
-    height:22px;
-
-}
-.skeleton-line{
-
-    height:14px;
-
-    margin-top:12px;
-
-}
-.short{
-
-    width:55%;
-
-}
-
-@keyframes skeleton-loading{
-
-    100%{
-
-        transform:translateX(100%);
-
+@keyframes skeleton-loading {
+    100% {
+        transform: translateX(100%);
     }
-
 }
-

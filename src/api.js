@@ -17,7 +17,6 @@ const API_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
  * @returns {Promise<Object>} Parsed JSON payload returned by the server.
  * @throws {Error} Throws if the HTTP response status code is outside the 200-299 range.
  */
-
 async function fetchJson(url) {
   const response = await fetch(url);
 
@@ -81,10 +80,14 @@ function mapCoffeeShop(place, idx) {
 
 
 /**
- * Search coffee shops by city name or query
- * Uses proximity bias towards Costa Rica
- * @param {String} query - City or location name to search
- * @returns {Array} Array of coffee shop objects
+ * Searches coffee shops by text query or city name using Geoapify Places API.
+ * Applies a geographic proximity bias towards Costa Rica coordinates and caps results to 10 places.
+ * Automatically maps raw GeoJSON features into normalized coffee shop domain objects.
+ * 
+ * @exports searchPlaces
+ * @async
+ * @param {string} [query="San Jose"] - Search term, city, or location name.
+ * @returns {Promise<Array<CoffeeShop>>} Resolves with an array of normalized coffee shop objects, or an empty array on failure.
  */
 export async function searchPlaces(query = "San Jose") {
   const biasLon = -84.0907;
@@ -93,14 +96,9 @@ export async function searchPlaces(query = "San Jose") {
   const url = `https://api.geoapify.com/v2/places?categories=catering.cafe&text=${encodeURIComponent(query)}&bias=proximity:${biasLon},${biasLat}&limit=10&apiKey=${API_KEY}`;
   
   try {
-    console.log(`🚀 Searching: "${query}"`);
-    
-    const data = await fetchJson(url);
-    console.log("🌍 Geoapify response:", data);
-    
-    // Transform API response to application format
-    return data.features.map(mapCoffeeShop);
-    
+    const data = await fetchJson(url); 
+    return (data.features|| []).map(mapCoffeeShop);
+  
   } catch (error) {
     console.error("❌ Geoapify error:", error);
     return [];
@@ -108,22 +106,21 @@ export async function searchPlaces(query = "San Jose") {
 }
 
 /**
- * Geocode city name to coordinates
- * Converts city name to latitude and longitude
- * Prioritizes Costa Rica for search
- * @param {String} cityName - Name of city to geocode
- * @returns {Object|null} Object with lat, lng, and displayName or null if not found
+ * Geocodes a city or location name into geographic coordinates (Forward Geocoding).
+ * Requests only the top match (limit=1) for performance optimization.
+ * 
+ * @exports geocodeCity
+ * @async
+ * @param {string} cityName - Name of the city or location to geocode.
+ * @returns {Promise<{lat: number, lng: number, displayName: string}|null>} Coordinates object or null if not found.
  */
 export async function geocodeCity(cityName) {
-  console.log(`🌍 Geocoding city: "${cityName}"`);
   
-  const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(cityName)}&country=Costa%20Rica&limit=1&apiKey=${API_KEY}`;
+  const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(cityName)}&limit=1&apiKey=${API_KEY}`;
   
   try {
     const data = await fetchJson(url);
-    console.log("📍 Geocode response:", data);
     
-    // Return null if no results
     if (!data.features || data.features.length === 0) {
       console.warn(`⚠️ City not found: ${cityName}`);
       return null;
@@ -136,47 +133,58 @@ export async function geocodeCity(cityName) {
       displayName: location.properties.city || location.properties.name
     };
 
-    
-    
-    
-    console.log(`✅ City found: ${coords.displayName} (${coords.lat}, ${coords.lng})`);
     return coords;
     
   } catch (error) {
     console.error("❌ Geocoding error:", error);
     return null;
-
-    
   }
-  
 }
 
-export async function reverseGeocode(lat, lng) {
-  
-  console.log("📍 reverseGeocode()", lat, lng);
+/**
+ * Performs reverse geocoding on a geographic coordinate pair (lat, lng).
+ * Converts raw latitude and longitude into a human-readable city and state object.
+ * 
+ * @exports reverseGeocode
+ * @async
+ * @param {number} lat - Latitude coordinate.
+ * @param {number} lng - Longitude coordinate.
+ * @returns {Promise<{lat: number, lng: number, city: string, state: string}|null>} Location data object or null if request fails/unresolved.
+ */
+export async function reverseGeocode(lat, lng) {  
   
   const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&limit=1&apiKey=${API_KEY}`;
-
-  const data = await fetchJson(url); 
-  if (!data.features || data.features.length === 0) {
+    try {
+      const data = await fetchJson(url); 
+    if (!data.features || data.features.length === 0) {
+      return null;
+    }
+    const location = data.features[0];
+    const result = {
+      lat,
+      lng,
+      city: location.properties.city || location.properties.name,
+      state: location.properties.state || ""
+   };
+    return result;
+  } catch (error) {
+    console.error("❌ Reverse geocoding error:", error);
     return null;
   }
-  const location = data.features[0];
-  const result = {
-    lat,
-    lng,
-    city: location.properties.city || location.properties.name,
-    state: location.properties.state || ""
-  };
-  console.log(Object.keys(location.properties));
-  return result;
 }  
 
 /**
- * Search coffee shops within map bounds
- * Searches around map center and filters results by visible bounds
- * @param {Object} bounds - Map bounds with south, north, west, east coordinates
- * @returns {Array} Array of coffee shop objects within bounds
+ * Searches coffee shops within the map's current visible bounding box (viewport).
+ * Calculates center coordinates to bias the query and filters places spatially to guarantee bounds inclusion.
+ * 
+ * @exports searchPlacesByBounds
+ * @async
+ * @param {Object} bounds - Spatial bounding box coordinates.
+ * @param {number} bounds.south - Minimum latitude.
+ * @param {number} bounds.north - Maximum latitude.
+ * @param {number} bounds.west - Minimum longitude.
+ * @param {number} bounds.east - Maximum longitude.
+ * @returns {Promise<Array<CoffeeShop>>} Array of normalized coffee shop objects inside bounds.
  */
 export async function searchPlacesByBounds(bounds) {
   const centerLat = (bounds.south + bounds.north) / 2;
@@ -190,18 +198,17 @@ export async function searchPlacesByBounds(bounds) {
       return [];
     }  
     
-  const cafesInBounds = searchData.features.filter(place => {
-    const lat = place.properties.lat;
-    const lng = place.properties.lon;
-    const isInBounds =
-      lat >= bounds.south &&
-      lat <= bounds.north &&
-      lng >= bounds.west &&
-      lng <= bounds.east;
-    return isInBounds;
-  });
-
-  return cafesInBounds.map(mapCoffeeShop);
+    const cafesInBounds = searchData.features.filter(place => {
+      const lat = place.properties.lat;
+      const lng = place.properties.lon;
+      return (
+       lat >= bounds.south &&
+       lat <= bounds.north &&
+       lng >= bounds.west &&
+       lng <= bounds.east
+      );
+    });
+    return cafesInBounds.map(mapCoffeeShop);
       
   } catch (error) {console.error("❌ Bounds search error:", error);
     return [];

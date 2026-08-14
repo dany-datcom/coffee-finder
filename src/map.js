@@ -429,8 +429,24 @@ async function performBoundsSearch(){
     
     if (userLocation) {
       places.forEach(place => {
-        place.distance = calculateDistance(userLocation, place);
-        place.walkingTime = estimateTravelTime(place.distance);
+        const distance = calculateDistance(
+    userLocation,
+    place
+  );
+
+  console.log("📍 Distance calculation:", {
+    place: place.name,
+    userLocation,
+    placeCoordinates: place.geocodes?.main,
+    distance
+  });
+
+  place.distance = distance;
+
+  place.walkingTime =
+    estimateTravelTime(distance);
+        /*place.distance = calculateDistance(userLocation, place);
+        place.walkingTime = estimateTravelTime(place.distance);*/
       });
     }
 

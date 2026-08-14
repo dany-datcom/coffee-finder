@@ -1,60 +1,73 @@
-/* ==========================
-   Favorite Button
-========================== */
+/**
+ * @file buttons.css - Reusable Button Components.
+ * @description Icon buttons, favorite triggers, and general UI button states.
+ * @module styles/buttons
+ */
 
+/* ==========================================================================
+   FAVORITE ICON BUTTON
+   ========================================================================== */
 .favorite-btn {
-    width: 42px;
-    height: 42px;
-    display: flex;
+    /* Variables locales con fallbacks a tus tokens globales */
+    --fav-icon-color: var(--color-text-light);
+    --fav-icon-hover: var(--color-primary);
+    --fav-icon-active: #ef4444; /* Rojo/Coral para favoritos activos */
+
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-
+    
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    
+    background-color: transparent;
     border: none;
-    border-radius: 50%;
-
-    background: transparent;
+    border-radius: var(--radius-round);
+    
     cursor: pointer;
-
-    transition: var(--transition-normal);
+    transition: background-color var(--transition-fast), 
+                transform var(--transition-fast);
 }
 
-
-/* Hover button */
-
 .favorite-btn:hover {
-    background: var(--color-background);
+    background-color: var(--color-background);
     transform: scale(1.08);
 }
 
-/* Saved state */
-
-.favorite-btn.saved {
-    opacity: .7;
-    cursor: default;
-}
-
-/* Optional: accessibility */
-
+/* Accesibilidad al navegar con teclado */
 .favorite-btn:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 3px;
+    outline: none;
+    box-shadow: var(--focus-ring);
 }
 
-.favorite-btn .icon {
-    color: var(--icon-color);
+/* --------------------------------------------------------------------------
+   FAVORITE ICON STATES
+   -------------------------------------------------------------------------- */
+.favorite-btn .icon,
+.favorite-btn svg {
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    
+    color: var(--fav-icon-color);
     fill: transparent;
-    transition: 
-        transform var(--transition-fast),
-        color var(--transition-fast),
-        fill var(--transition-fast);
+    stroke: currentColor;
+    stroke-width: 2px;
+    
+    transition: transform var(--transition-fast),
+                color var(--transition-fast),
+                fill var(--transition-fast);
 }
 
-.favorite-btn:hover .icon {
-    color: var(--icon-color-hover);
+.favorite-btn:hover .icon,
+.favorite-btn:hover svg {
+    color: var(--fav-icon-hover);
     transform: scale(1.1);
 }
 
-.favorite-btn.saved .icon {
-    color: var(--icon-color-activated);
-    fill: currentColor;
+/* Estado Guardado / Activo (Permite desmarcar en cualquier momento) */
+.favorite-btn.saved .icon,
+.favorite-btn.saved svg {
+    color: var(--fav-icon-active);
+    fill: currentColor; /* Rena el corazón/estrella cuando está guardado */
 }
