@@ -129,8 +129,6 @@ function debouncedSearch(){
   }, 800);
 }
 
-
-
 /**
  * Extracts the geographic bounding box coordinates of the currently visible map area.
  * Converts Google Maps LatLngBounds into a plain JS object suitable for API requests.
@@ -153,8 +151,6 @@ function getMapBounds(){
     east: bounds.getNorthEast().lng()
   };
 }
-
-
 
 /**
  * Removes all active markers and InfoWindows from the map.
@@ -325,8 +321,6 @@ function createInfoWindow(place) {
   return infoWindow;
 }
 
-
-
 /**
  * Adjusts the map camera to encompass all active markers within the viewport.
  * Automatically fits bounds for multiple markers, or centers with a comfortable zoom level (16)
@@ -354,10 +348,15 @@ function fitMarkersOnMap(bounds){
   }
 }
 
-
-
 /**
- * Update UI after search
+ * Orchestrates UI and map updates following a successful place search.
+ * Filters visible places, updates DOM cards, renders map markers, and performs
+ * asynchronous reverse geocoding to update the human-readable location status bar.
+ * 
+ * @private
+ * @async
+ * @param {Array<Object>} places - Array of raw coffee shop place objects retrieved from search.
+ * @returns {Promise<void>}
  */
 async function updateSearchResults(places){
   const visiblePlaces = getVisiblePlaces(places);
@@ -374,8 +373,7 @@ async function updateSearchResults(places){
 
   const center = mapState.map.getCenter();
 
-  const location =
-    await reverseGeocode(
+  const location = await reverseGeocode(
       center.lat(),
       center.lng()
     );
@@ -384,38 +382,32 @@ async function updateSearchResults(places){
     location,
     places.length
   );
-
-
 }
 
-
-
 /**
- * Update result counter
+ * Updates the result counter element in the DOM with the total number of found coffee shops.
+ * Handles dynamic singular/plural string formatting safely.
+ * 
+ * @private
+ * @param {number} total - Total count of coffee shops returned from the search.
+ * @returns {void}
  */
 function updateMapStats(total){
-
-
-  const counter =
-    document.getElementById(
-      "results-count"
-    );
-
-
+  const counter = document.getElementById("results-count");
 
   if(counter){
-
-    counter.textContent =
-      `${total} Coffee shop${total !== 1 ? "s" : ""}`;
-
+    counter.textContent = `${total} Coffee shop${total !== 1 ? "s" : ""}`;
   }
-
 }
 
-
-
 /**
- * Search places in visible map area
+ * Executes an asynchronous coffee shop search based on current visible map bounds.
+ * Handles loading UI states, data enrichment (distance and walking time calculations),
+ * active sorting criteria, global state synchronization, and UI updates.
+ * 
+ * @private
+ * @async
+ * @returns {Promise<void>}
  */
 async function performBoundsSearch(){
   if (!isMapInteractive()) {
@@ -435,7 +427,7 @@ async function performBoundsSearch(){
 
     const userLocation = getUserLocation();
     
-    if(userLocation){
+    if (userLocation) {
       places.forEach(place => {
         place.distance = calculateDistance(userLocation, place);
         place.walkingTime = estimateTravelTime(place.distance);
@@ -445,144 +437,114 @@ async function performBoundsSearch(){
     const sorted = sortPlaces(places, getCurrentSort());
     setPlaces(sorted);
     updateSearchResults(sorted);
-  }
-  catch(error){
+  } catch(error){
     console.error("❌ Bounds search error:", error);
-  }
-
-  finally{
+  } finally{
     setLoading(false);
   }
 }
 
-
-
 /**
- * Center map on city
+ * Repositions the map center to a specified city coordinate and updates the zoom level.
+ * Triggers an automatic bounds search once the map camera finishes moving (idle state).
+ * 
+ * @exports centerMapOnCity
+ * @param {number} lat - Latitude coordinate of the target city.
+ * @param {number} lng - Longitude coordinate of the target city.
+ * @param {number} [zoomLevel=13] - Target zoom level (defaults to 13 for city-wide overview).
+ * @returns {void}
  */
-export function centerMapOnCity(
-  lat,
-  lng,
-  zoomLevel = 13
-){
-
-
-  mapState.map.setCenter({
-
-    lat,
-
-    lng
-
-  });
-
-
-  mapState.map.setZoom(
-    zoomLevel
-  );
-
-
+export function centerMapOnCity(lat, lng, zoomLevel = 13){
+  mapState.map.setCenter({ lat, lng });
+  mapState.map.setZoom(zoomLevel);
 
   google.maps.event.addListenerOnce(
     mapState.map,
     "idle",
     () => {
-
       performBoundsSearch();
-
     }
   );
-
-
 }
 
-
-
 /**
- * Add markers
+ * Clears existing map elements and renders new markers for a list of places.
+ * Dynamically extends geographic bounds and optionally adjusts the viewport camera.
+ * 
+ * @exports addMarkers
+ * @param {Array<Object>} places - List of coffee shop place objects to render on the map.
+ * @param {boolean} [shouldAutoCenter=true] - Whether to fit map camera bounds around added markers.
+ * @returns {void}
  */
-export function addMarkers(
-  places,
-  shouldAutoCenter = true
-){
-
-
+export function addMarkers(places, shouldAutoCenter = true) {
   clearMarkersAndInfoWindows();
   
-
-
   if(!places || places.length === 0){
-
-    console.warn(
-      "⚠️ No markers to add"
-    );
-
+    console.warn("⚠️ No markers to add");
     return;
-
   }
 
-
-
-  const bounds =
-    new google.maps.LatLngBounds();
-
-
+  const bounds = new google.maps.LatLngBounds();
 
   places.forEach(place => {
-
-    createMarker(
-      place,
-      bounds
-    );
-
+    createMarker(place, bounds);
   });
 
-
-
   if(shouldAutoCenter){
-
-    fitMarkersOnMap(
-      bounds
-    );
-
+    fitMarkersOnMap(bounds);
   }
-
-
-
+  
   console.log(
     `✅ ${mapState.markers.length} markers added`
   );
-
-
 }
-
-
 
 /**
- * Clear map
+ * Public API method to clear all active markers and overlays from the map view.
+ * Delegates execution to internal cleanup routines for memory flush.
+ * 
+ * @exports clearMap
+ * @returns {void}
  */
 export function clearMap(){
-
   clearMarkersAndInfoWindows();
-
 }
 
-function resetMarkerIcons() {
+/**
+ * Resets all active map markers back to their default visual icon state.
+ * Iterates through the markerLookup registry and applies MARKER_ICON to each instance.
+ * 
+ * @private
+ * @returns {void}
+ */
+function resetMarkerIcons(){
   mapState.markerLookup.forEach(item => {
     item.marker.setIcon(MARKER_ICON);
   });
 }
-  
-function activateMarker(marker) {
-  marker.setIcon(ACTIVE_MARKER_ICON);
- }
-
-
 
 /**
- * Focus selected coffee shop
+ * Updates a specific map marker instance to display its active/focused visual icon.
+ * 
+ * @private
+ * @param {google.maps.Marker} marker - Google Maps marker instance to activate.
+ * @returns {void}
+ */
+function activateMarker(marker) {
+  marker.setIcon(ACTIVE_MARKER_ICON);
+}
+
+/**
+ * Focuses on a single coffee shop place across state, map camera, marker animations, and sidebar UI.
+ * Handles smooth map panning, zoom adjustment, marker bounce animation, InfoWindow display,
+ * and automatic smooth scrolling of the sidebar card into the viewport.
+ * 
+ * @exports focusPlace
+ * @param {Object} place - The coffee shop place object to focus on.
+ * @throws {Error} Throws if no matching marker exists in the markerLookup Map.
+ * @returns {void}
  */
 export function focusPlace(place) {
-   
   enterFocusMode(place);
   renderPlaces(getPlaces());
 
@@ -605,32 +567,22 @@ export function focusPlace(place) {
   resetMarkerIcons();
   activateMarker(marker);
 
-  marker.setAnimation(
-    google.maps.Animation.BOUNCE
-  );
+  marker.setAnimation(google.maps.Animation.BOUNCE);
 
   setTimeout(() => {
     marker.setAnimation(null);
   }, 700);
 
-  infoWindow.open(
-    mapState.map,
-    marker
-  );
+  infoWindow.open(mapState.map, marker);
 
-  const card = document.querySelector(
-    `[data-place-id="${place.id}"]`
-  );
+  const card = document.querySelector(`[data-place-id="${place.id}"]`);
 
   if (!card) {
     return;
   }
 
   const rect = card.getBoundingClientRect();
-
-  const isVisible =
-    rect.top >= 0 &&
-    rect.bottom <= window.innerHeight;
+  const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
 
   if (!isVisible) {
     card.scrollIntoView({
@@ -640,43 +592,24 @@ export function focusPlace(place) {
   }
 }
 
-
-
 /**
- * Highlight marker animation
+ * Triggers a temporary bounce animation on a map marker for visual feedback (e.g., card hover).
+ * Performs an O(1) lookup and automatically cancels the animation after 700ms.
+ * 
+ * @exports highlightMarker
+ * @param {Object} place - The coffee shop place object containing the target place ID.
+ * @returns {void}
  */
 export function highlightMarker(place){
-
-
-  const item =
-    mapState.markerLookup.get(
-      place.id
-    );
-
-
-
+  const item = mapState.markerLookup.get(place.id);
+  
   if(!item){
-
-    return;
-
+   return;
   }
 
+  item.marker.setAnimation(google.maps.Animation.BOUNCE);
 
-
-  item.marker.setAnimation(
-    google.maps.Animation.BOUNCE
-  );
-
-
-
-  setTimeout(
-    () => {
-
-      item.marker.setAnimation(null);
-
-    },
-    700
-  );
-
-
+  setTimeout(() => {
+    item.marker.setAnimation(null);
+  }, 700);
 }
