@@ -25,7 +25,7 @@ import {
   getActivePlace
 } from "./state/appState.js";
 // 4. Utility & Helper Functions
-import { setLoading } from "./utils/loading.js";
+import { setLoadingUI } from "./utils/loading.js";
 import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
@@ -420,7 +420,7 @@ async function performBoundsSearch(){
   }
 
   try{
-    setLoading( true, "Searching coffee shops...");
+    setLoadingUI( true, "Searching coffee shops...");
     renderSkeletonCards();
 
     const places = await searchPlacesByBounds(boundsObj);
@@ -456,7 +456,7 @@ async function performBoundsSearch(){
   } catch(error){
     console.error("❌ Bounds search error:", error);
   } finally{
-    setLoading(false);
+    setLoadingUI(false);
   }
 }
 

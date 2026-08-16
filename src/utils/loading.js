@@ -14,7 +14,7 @@
  * @param {string} [message="Searching coffee shops..."] - Custom message displayed inside the loader.
  * @returns {void}
  */
-export function setLoading(
+export function setLoadingUI(
   loading,
   message = "Searching coffee shops..."
 ) {
