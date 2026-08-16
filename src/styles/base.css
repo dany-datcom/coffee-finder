@@ -1,62 +1,82 @@
-*,
+*,/**
+ * @file base.css - Global CSS Reset & Modern Defaults.
+ * @description Normalizes default browser styling, sets typography defaults,
+ * and ensures cross-browser consistency and accessibility.
+ * @module styles/base
+ */
 
+/*1. BOX SIZING & MARGIN RESETS*/
+*,
 *::before,
 *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
-
+/*2. HTML & BODY DEFAULTS*/
 html {
     scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
 
 body {
-
-    font-family:var(--font-body);
-
-    background:var(--color-background);
-
+    min-height:100vh;
+    background-color:var(--color-background);
     color:var(--color-text);
 
+    font-family:var(--font-body);
     line-height:1.6;
 
-    min-height:100vh;
-
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -text-rendering: optimizeLegibility;
 }
 
 
 
-img {
-
+img,
+picture,
+video,
+canvas,
+svg {
     max-width: 100%;
-
-    display: block;
-
+    height: auto;
 }
 
-
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
 
 button {
-
-    font:inherit;
-
-    cursor:pointer;
-
-    border:none;
-
-    background:none;
-
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
-
-
-input{
-
-    font:inherit;
-
+button:disabled {
+    cursor: not-allowed;
 }
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
 
 
 

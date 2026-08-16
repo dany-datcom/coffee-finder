@@ -1,193 +1,156 @@
 /**
- * Home page component (Find Coffee)
- * Displays search functionality, coffee cards grid, and interactive map
- * Handles location search, geocoding, and dynamic coffee shop loading
+ * @file home.js - Home Page Controller (Find Coffee).
+ * @description Orchestrates the main view logic. Handles user location acquisition,
+ * geocoding searches, sorting interactions, and synchronizes data between the API,
+ * the global app state, and the UI rendering modules.
+ * @module views/home
  */
 
-import { setLoading } from "../utils/loading.js";
-import { geocodeCity, getCurrentLocation, reverseGeocode,} from "../api.js";
+import { 
+  geocodeCity, 
+  getUserLocation, 
+  reverseGeocode
+} from "../api.js";
+
+import { 
+  setUserLocation, 
+  getPlace, 
+  setCurrentSort, 
+  getCurrentSort, 
+  setLoadingState,
+  isLoading
+} from "../state/appState.js";
+
 import { createHero } from "../components/hero.js";
-import { setUserLocation, getPlaces, setCurrentSort, getCurrentSort, setLoadingState,isLoading} from "../state/appState.js";
-import { sortPlaces } from "../utils/sorting.js";
 import { renderPlaces } from "../ui.js";
 
+import { sortPlaces } from "../utils/sorting.js";
+import { setLoadingUI } from "../utils/loading.js";
 
+/**
+ * Sets up the event listener for the UI sort selector element.
+ * Synchronizes selected sort criteria with global state, re-sorts current places,
+ * and updates the DOM grid view.
+ * 
+ * @function setupSorting
+ * @module controllers/sorting
+ * @returns {void}
+ */
 function setupSorting() {
-
   const select = document.getElementById("sort-select");
-  
+  if (!select) return;
+
   select.addEventListener("change", () => {
+    const selectedSort = select.value;
 
-    setCurrentSort(select.value);
+    setCurrentSort(selectedSort);
 
-    const places = getPlaces();
+    const places = getPlace();
 
     const sorted = sortPlaces(places, getCurrentSort());
 
-
     renderPlaces(sorted);
-
   });
-
 }
-/**
- * Create Home page HTML template
- * Keeps page structure separated from application logic
- * @returns {String} Home page HTML
- */
 
+/**
+ * Generates the Home page HTML template string.
+ * Keeps structural markup separate from application logic and defines
+ * the reusable HTML5 <template> for place cards.
+ * 
+ * @function createHomeTemplate
+ * @module templates/home
+ * @returns {string} Multiline HTML layout template.
+ */
 function createHomeTemplate() {
   return `
   <main class="home">
-  ${createHero()}
-
-  <section class="explore-layout">
-    <section class="results-container">
-      <div class="results-toolbar">
-
-        <label for="sort-select">
-          Sort by:
-        </label>
-
-        <div id="sort-select-wrapper">
-          <select id="sort-select">
-            <option value="distance">Nearest</option>
-            <option value="farthest">Farthest</option>
-            <option value="name">Name (A-Z)</option>
-          </select>
-          <i
-            data-lucide="chevron-down"
-            class="sort-icon">
-          </i>
-        </div>
-      </div>
-
-      <div id="results" class="results-grid">
-
-        <div id="loader" class="loader hidden">
-        <div class="loader-spinner"></div>
-        <p class="loader-text">
-          Searching coffee Shops...
-        </p>
+    ${createHero()}
+    
+    <section class="explore-layout">
+      <!-- Left Column: Search results grid controls -->
+      <section class="results-container">
+        <div class="results-toolbar">
+          <label for="sort-select">Sort by:</label>
+          <div id="sort-select-wrapper">
+            <select id="sort-select">
+              <option value="distance">Nearest</option>
+              <option value="farthest">Farthest</option>
+              <option value="name">Name (A-Z)</option>
+            </select>
+            <i data-lucide="chevron-down" class="sort-icon"></i>
+          </div>
         </div>
 
-      </div>
+        <div id="results" class="results-grid">
+          <div id="loader" class="loader hidden">
+            <div class="loader-spinner"></div>
+            <p class="loader-text">Searching coffee Shops...</p>
+          </div>
+        </div>
+      </section>
 
+      <!-- Right Column: Interactive Map view -->
+      <aside class="map-panel">
+        <div class="map-header">
+          <h2 class="map-title">
+            <i class="title-icon" data-lucide="map"></i>
+            Coffee Map
+          </h2>
+          <p>Explore nearby coffee shops</p>
+          <div class="map-stats">
+            <span class="map-location">Current Location</span>
+            <span class="map-results">0 Coffee Shops</span>
+          </div>
+        </div>
+
+        <div id="map" class="map-container"></div>
+      </aside>
     </section>
+  </main>
 
-    <aside class="map-panel">
-      <div class="map-header">
-        <h2 class="map-title">
-
-    <i
-        class="title-icon"
-        data-lucide="map">
-    </i>
-
-    Coffee Map
-
-</h2>
-        <p>Explore nearby coffee shops</p>
-        <div class="map-stats">
-
-    <span class="map-location">
-        Current Location
-    </span>
-
-    <span class="map-results">
-        0 Coffee Shops
-    </span>
-
-</div>
-
-      <div 
-        id="map" 
-        class="map-container">
-      </div>
-    </aside>
-
-  </section>
-
-</main>
-
-
-<template id="place-template">
-  <article class="place-card">
-  
-
-
-    <div class="place-card-header">
-
+  <!-- Reusable HTML5 Card Template -->
+  <template id="place-template">
+    <article class="place-card">
+      <div class="place-card-header">
         <h3 class="place-name"></h3>
+        <button class="favorite-btn" aria-label="Favorite">
+          <i class="icon" data-lucide="heart"></i>
+        </button>
+      </div>
 
-        <button
-        class="favorite-btn"
-        aria-label="Favorite">
+      <p class="place-address"></p>
 
-        <i
-            class="icon"
-            data-lucide="heart">
-        </i>
-
-    </button>
-
-    </div>
-
-    <p class="place-address"></p>
-
-    <div class="place-tags">
-
+      <div class="place-tags">
         <span class="place-tag">
-    <i
-        class="tag-icon"
-        data-lucide="coffee">
-    </i>
+          <i class="tag-icon" data-lucide="coffee"></i> Coffee Shop
+        </span>
+        <span class="place-tag location-tag">
+          <i class="tag-icon" data-lucide="map-pin"></i>
+          <span class="location-text">Location</span>
+        </span>
+      </div>
 
-     Coffee Shop
-</span>
+      <div class="place-meta">
+        <span class="meta-item distance-tag">
+          <i class="meta-icon" data-lucide="map-pin"></i>
+          <span class="distance-value"></span>
+        </span>
 
-      <span class="place-tag location-tag">
-    <i
-        class="tag-icon"
-        data-lucide="map-pin">
-    </i>
-
-    <span class="location-text">
-        Location
-    </span>
-</span>
-
-    </div>
-
-    <div class="place-meta">
-
-    <span class="meta-item distance-tag">
-        <i class="meta-icon" data-lucide="map-pin"></i>
-        <span class="distance-value"></span>
-    </span>
-
-    <span class="meta-item travel-time">
-        <i class="meta-icon" data-lucide="footprints"></i>
-        <span class="travel-time-value"></span>
-    </span>
+        <span class="meta-item travel-time">
+          <i class="meta-icon" data-lucide="footprints"></i>
+          <span class="travel-time-value"></span>
+        </span>
 
         <span class="meta-item">
-    <i
-        class="meta-icon"
-        data-lucide="navigation">
-    </i>
+          <i class="meta-icon" data-lucide="navigation"></i> Google Maps
+        </span>
+      </div>
 
-    Google Maps
-</span>
-
-    </div>
-
-    <div class="action-bar-container"></div>
-
-
-</article>
-</template>
-`;
+      <div class="action-bar-container"></div>
+    </article>
+  </template>
+  `;
 }
 
 /**
@@ -208,7 +171,7 @@ export async function renderHomePage() {
   createMap();
 
   try {
-    const coordinates = await getCurrentLocation();
+    const coordinates = await getUserLocation();
     setUserLocation(coordinates);
 
     const location = await reverseGeocode(
@@ -253,7 +216,7 @@ async function handleSearch(e) {
   console.log("🔎 Searching for:", query);
 
   setLoadingState(true);
-  setLoading(true);
+  setLoadingUI(true);
 
   try {
 
@@ -282,7 +245,7 @@ async function handleSearch(e) {
 
   } finally {
 
-    setLoading(false);
+    setLoadingUI(false);
     setLoadingState(false);
 
   }

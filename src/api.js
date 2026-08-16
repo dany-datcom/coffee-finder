@@ -174,6 +174,44 @@ export async function reverseGeocode(lat, lng) {
 }  
 
 /**
+ * Estimates the user's current coordinates based on their public IP address.
+ * Serves as a fallback location mechanism when HTML5 browser geolocation
+ * is rejected or unsupported.
+ *
+ * @async
+ * @function getLocationByIP
+ * @module services/location
+ * @returns {Promise<{lat: number, lng: number}|null>} Object containing `lat` and `lng` coordinates, or `null` if the lookup fails.
+ *
+ * @example
+ * const coords = await getLocationByIP();
+ * if (coords) {
+ *   console.log(`Latitude: ${coords.lat}, Longitude: ${coords.lng}`);
+ * }
+ */
+export async function getLocationByIP() {
+  const url = `https://api.geoapify.com/v1/ipinfo?apiKey=${API_KEY}`;
+
+  try {
+    const data = await fetchJson(url);
+
+    const lat = data?.location?.latitude;
+    const lng = data?.location?.longitude;
+
+    if (typeof lat !== "number" || typeof lng !== "number") {
+      console.warn("⚠️ IP location coordinates unavailable");
+      return null;
+    }
+
+    return { lat, lng };
+
+  } catch (error) {
+    console.error("❌ IP location error:", error);
+    return null;
+  }
+}
+
+/**
  * Searches coffee shops within the map's current visible bounding box (viewport).
  * Calculates center coordinates to bias the query and filters places spatially to guarantee bounds inclusion.
  * 
@@ -214,3 +252,48 @@ export async function searchPlacesByBounds(bounds) {
     return [];
   }
 }
+
+/**
+ * Resolves the user's gographic location using a multi-tiered strategy:
+ * Attempts high-precision GPS geolocation first, and falls back to IP-based
+ * location lookup if permissions are denied or unsupported,
+ *
+ * @async
+ * @function getUserLocation
+ * @module services/location
+ * @returns {Promise<{lat: number, lng: number, source: 'gps'|'ip'}|null>} Location object with provenance source, or `null` if all attempts fail.
+ * 
+ * @example
+ * const userLocation = await getUserLocation();
+ * if (userLocation) {
+ *   console.log(`Latitude: ${userLocation.lat}, Longitude: ${userLocation.lng}, Source: ${userLocation.source}`); 
+ * }else {
+ *  console.warn("User location could not be determined.");
+ * }
+ */
+export async function getUserLocation() {
+  try {
+    const coordinates = await getCurrentLocation();
+    
+    return {
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      source: "gps"
+    };
+
+  } catch {
+    const ipLocation = await getLocationByIP();
+    
+    if (!ipLocation) {
+      return null;
+    }
+    
+    return {
+      lat: ipLocation.lat,
+      lng: ipLocation.lng,
+      source: "ip"
+    };
+  }
+}
+
+

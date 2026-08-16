@@ -15,17 +15,17 @@ import { renderPlaces, updateMapStatus,renderSkeletonCards } from "./ui.js";
 import { searchPlacesByBounds, reverseGeocode } from "./api.js";
 // 3. Application State Management
 import {
-  setPlaces,
+  setPlace,
   getCurrentSort,
   getUserLocation,
-  getPlaces, 
+  getPlace, 
   setMapMode, 
   setActivePlace, 
   getMapMode, 
   getActivePlace
 } from "./state/appState.js";
 // 4. Utility & Helper Functions
-import { setLoading } from "./utils/loading.js";
+import { setLoadingUI } from "./utils/loading.js";
 import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
@@ -420,7 +420,7 @@ async function performBoundsSearch(){
   }
 
   try{
-    setLoading( true, "Searching coffee shops...");
+    setLoadingUI( true, "Searching coffee shops...");
     renderSkeletonCards();
 
     const places = await searchPlacesByBounds(boundsObj);
@@ -451,12 +451,12 @@ async function performBoundsSearch(){
     }
 
     const sorted = sortPlaces(places, getCurrentSort());
-    setPlaces(sorted);
+    setPlace(sorted);
     updateSearchResults(sorted);
   } catch(error){
     console.error("❌ Bounds search error:", error);
   } finally{
-    setLoading(false);
+    setLoadingUI(false);
   }
 }
 
@@ -562,7 +562,7 @@ function activateMarker(marker) {
  */
 export function focusPlace(place) {
   enterFocusMode(place);
-  renderPlaces(getPlaces());
+  renderPlaces(getPlace());
 
   const item = mapState.markerLookup.get(place.id);
 
