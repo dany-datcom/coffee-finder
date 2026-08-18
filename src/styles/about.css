@@ -1,0 +1,206 @@
+/* ==========================================
+   About Page Styles
+   ========================================== */
+
+.about-hero {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: var(--color-surface);
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.about-hero-content h1 {
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--color-surface);
+  margin-bottom: 0.5rem;
+}
+
+.hero-icon {
+  color: var(--color-secondary);
+  width: 36px;
+  height: 36px;
+}
+
+.about-hero-content p {
+  color: var(--color-secondary);
+  font-size: 1.1rem;
+  opacity: 0.95;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.about-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.about-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-title i {
+  color: var(--color-primary);
+}
+
+/* Cards & Mission */
+.about-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  margin-bottom: 3rem;
+}
+
+.card-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background-color: var(--color-secondary);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-icon {
+  color: var(--color-primary);
+  width: 28px;
+  height: 28px;
+}
+
+.about-card h2 {
+  font-size: 1.4rem;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.about-card p {
+  color: var(--color-text-light);
+  line-height: 1.6;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.feature-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-secondary-dark);
+}
+
+.feature-icon {
+  color: var(--color-primary);
+  width: 28px;
+  height: 28px;
+  margin-bottom: 0.75rem;
+}
+
+.feature-card h3 {
+  font-size: 1.1rem;
+  color: var(--color-text);
+  margin-bottom: 0.4rem;
+}
+
+.feature-card p {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Tech Badges Grid */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.tech-badge {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tech-icon {
+  color: var(--color-primary);
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.tech-badge strong {
+  display: block;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.tech-badge span {
+  display: block;
+  color: var(--color-text-light);
+  font-size: 0.8rem;
+}
+
+/* Developer Section */
+.dev-card {
+  align-items: center;
+  background-color: var(--color-background);
+  border-color: var(--color-secondary-dark);
+}
+
+.dev-avatar {
+  width: 60px;
+  height: 60px;
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dev-avatar i {
+  width: 28px;
+  height: 28px;
+}
+
+.inline-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+}

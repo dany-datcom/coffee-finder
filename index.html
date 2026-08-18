@@ -4,9 +4,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Find the best coffee shops to study, work, or code with good WiFi and comfort.">
   <title>Code & Coffee Finder ☕</title>
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Code & Coffee Finder ☕" />
+  <meta name="description" content="Find the best coffee shops to study, work, or code with high-speed WiFi, power outlets, and great atmosphere." />
+  <meta name="keywords" content="coffee shops, remote work, wifi, power outlets, coding cafes, study spots" />
+  <meta name="author" content="Dany Datcom" />
+  <meta name="theme-color" content="#064E3B" />
+
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://codeandcoffee.app/" />
+  <meta property="og:title" content="Code & Coffee Finder ☕" />
+  <meta property="og:description" content="Discover remote-work friendly coffee shops with reliable WiFi, power outlets, and great coffee." />
+  <meta property="og:image" content="https://codeandcoffee.app/og-image.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Code & Coffee Finder ☕" />
+  <meta name="twitter:description" content="Discover remote-work friendly coffee shops with reliable WiFi, power outlets, and great coffee." />
+  <meta name="twitter:image" content="https://codeandcoffee.app/og-image.png" />
+
+  <!-- Dynamic SVG Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕</text></svg>" />
+
+  <!-- Application Stylesheet -->
   <link rel="stylesheet" href="/src/styles/main.css" />
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -23,7 +50,7 @@
   <!-- Modal for displaying coffee shop details -->
   <div id="modal" class="modal hidden">
     <div class="modal-content">
-      <button class="modal-close">&times;</button>
+      <button class="modal-close" aria-label="Close modal">&times;</button>
       <div id="modal-body">
         <!-- Modal content loaded dynamically -->
       </div>
@@ -39,10 +66,7 @@
   <script type="module" src="/src/main.js"></script>
 
   <!-- Google Maps JavaScript API -->
-  <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACnb-PSZ2fE_Cop1HYAizvZoqu82G23qI">
-  </script>
-
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACnb-PSZ2fE_Cop1HYAizvZoqu82G23qI"></script>
 </body>
 
 </html>

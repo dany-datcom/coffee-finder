@@ -112,6 +112,10 @@ function setupMapListeners(){
     console.log("🔍 User changed zoom");
     debouncedSearch();
   });
+
+   mapState.map.addListener("idle", () => {
+    console.log("🔵 EVENT: idle");
+  });
 }
 
 /**

@@ -154,35 +154,46 @@ function createHomeTemplate() {
 }
 
 /**
- * Render home page with search bar, cards grid, and map
+ * Renders the complete Home page view.
+ * Injects the HTML template, registers event listeners, initializes the map,
+ * and fetches initial user coordinates to center the map viewport.
+ * 
+ * @async
+ * @function renderHomePage
+ * @module controllers/home
+ * @returns {Promise<void>}
  */
 export async function renderHomePage() {
   const app = document.getElementById("app");
+  if (!app) return;
 
   app.innerHTML = createHomeTemplate();
 
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
 
-  // Initialize search form
   setupSearch();
   setupSorting();
 
-  // Initialize Google Map
-  const { createMap,centerMapOnCity } = await import("../map.js");
-  createMap();
-
   try {
+    const { createMap,centerMapOnCity } = await import("../map.js");
+    createMap();
+
     const coordinates = await getUserLocation();
+
+    if (!coordinates) {
+      console.warn("⚠️ User location unavailable on home page render.");
+      return;
+    }
+
     setUserLocation(coordinates);
 
-    const location = await reverseGeocode(
-      coordinates.lat, 
-      coordinates.lng
-    );
+    const locationInfo = await reverseGeocode(coordinates.lat, coordinates.lng);
+    const targetLat = locationInfo?.lat ?? coordinates.lat;
+    const targetLng = locationInfo?.lng ?? coordinates.lng;
     
-    centerMapOnCity(
-      location.lat, 
-      location.lng
-    );
+    centerMapOnCity(targetLat, targetLng);
   } catch (error){
     console.warn("Location not available:", error.message);
   }
@@ -190,64 +201,71 @@ export async function renderHomePage() {
 }
 
 /**
- * Setup search form submit handler
- * Geocodes city input and centers map on that location
+ * Attaches the 'submit' event listener to the main hero search form.
+ * Delegates form handling to the handleSearch callback.
+ * 
+ * @function setupSearch
+ * @module controllers/search
+ * @returns {void}
  */
 function setupSearch() {
   const form = document.getElementById("search-form");
+
+  if (!form) return;
   
   form.addEventListener("submit", handleSearch); 
 }
 
-async function handleSearch(e) {
+/**
+ * Handles the search form submission.
+ * Geocodes the user's text query, updates global coordinates state,
+ * and recenters the interactive map viewport.
+ * 
+ * @async
+ * @function handleSearch
+ * @module controllers/search
+ * @param {SubmitEvent} e - The HTML form submission event.
+ * @returns {Promise<void>}
+ */
+export async function handleSearch(e) {
   e.preventDefault();
 
-  if (isLoading()) {
-    return;
-  }
+  if (isLoading()) return;
 
   const input = document.getElementById("search-input");
-  const query = input.value.trim();
+  const query = input?.value.trim() ?? "";
 
-  if (!query) {
-    return;
-  }
+  if (!query) return;
 
-  console.log("🔎 Searching for:", query);
+  console.log("🔎 Searching for location:", query);
 
   setLoadingState(true);
-  setLoadingUI(true);
+  setLoadingUI(true, `Searching coffee shops in "${query}"...`);
 
   try {
-
-    // Geocode city name to get coordinates
     const cityCoords = await geocodeCity(query);
 
     if (!cityCoords) {
-      alert("❌ City not found");
+      alert("❌ City or location not found. Please try another search.");
       return;
     }
 
-    // Center map on the found city
-    const { centerMapOnCity: centerMap } = await import("../map.js");
+    setUserLocation({
+      lat: cityCoords.lat,
+      lng: cityCoords.lng,
+      source: "search"
+    });
 
-    centerMap(
-      cityCoords.lat,
-      cityCoords.lng,
-      13
-    );
+    const { centerMapOnCity } = await import("../map.js");
+    centerMapOnCity(cityCoords.lat, cityCoords.lng, 13);
 
-    input.value = "";
+    if (input) input.value = "";
 
   } catch (error) {
-
-    console.error("❌ Error:", error);
-
+    console.error("❌ Error processing location search:", error);
   } finally {
-
     setLoadingUI(false);
     setLoadingState(false);
-
   }
 }
 
