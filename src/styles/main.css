@@ -1,8 +1,8 @@
 @import "../styles/variables.css";
-
+@import "../styles/favorite.css";
 @import "../styles/base.css";
 @import "../styles/layout.css";
-
+@import "../styles/about.css";
 @import "../styles/icons.css";
 @import "../styles/buttons.css";
 @import "../styles/components.css";
