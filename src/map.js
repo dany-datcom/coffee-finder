@@ -30,25 +30,36 @@ import { sortPlaces } from "./utils/sorting.js";
 import { calculateDistance } from "./utils/distance.js";
 import { estimateTravelTime } from "./utils/travelTime.js";
 
-/**
- * Custom marker icon configuration for default coffee shop pins.
- * @type {google.maps.Icon}
- */
-const MARKER_ICON = {
-  url: "/assets/coffee-marker.svg",
-  scaledSize: new google.maps.Size(42, 52),
-  anchor: new google.maps.Point(21, 52)
-};
+function waitForGoogleMaps() {
+  return new Promise((resolve) => {
+    if (typeof google !== "undefined" && google?.maps) {
+      return resolve(google);
+    }
 
-/**
- * Custom marker icon configuration for the currently active/selected coffee shop pin.
- * @type {google.maps.Icon}
- */
-const ACTIVE_MARKER_ICON = {
-  url: "/assets/coffee-marker-active.svg",
-  scaledSize: new google.maps.Size(46, 56),
-  anchor: new google.maps.Point(23, 56)
-};
+    const interval = setInterval(() => {
+      if (typeof google !== "undefined" && google?.maps) {
+        clearInterval(interval);
+        resolve(google);
+      }
+    }, 50);
+  });
+}
+
+function getMarkerIcon() {
+  return {
+    url: "/assets/coffee-marker.svg",
+    scaledSize: new google.maps.Size(42, 52),
+    anchor: new google.maps.Point(21, 52)
+  };
+}
+
+function getActiveMarkerIcon() {
+  return {
+    url: "/assets/coffee-marker-active.svg",
+    scaledSize: new google.maps.Size(46, 56),
+    anchor: new google.maps.Point(23, 56)
+  };
+}
 
 /**
  * Internal module state registry for managing map instances, markers, and UI modes.
@@ -78,18 +89,20 @@ const mapState = {
  * 
  * @returns {void}
  */
-export function createMap() {
-  mapState.map = new google.maps.Map(
-    document.getElementById("map"),
-    {
-      center: {
-        lat: 9.9281,
-        lng: -84.0907
-      },
-      zoom: 13,
-      styles: mapTheme
-    }
-  );
+export async function createMap() {
+  await waitForGoogleMaps();
+
+  const mapContainer = document.getElementById("map");
+  if (!mapContainer) return;
+
+  mapState.map = new google.maps.Map(mapContainer, {
+    center: {
+      lat: 9.9281,
+      lng: -84.0907
+    },
+    zoom: 13,
+    styles: mapTheme
+  });
 
   setupMapListeners();
 }
@@ -261,7 +274,7 @@ function createMarker(place, bounds){
     position: { lat, lng },
     map: mapState.map,
     title: place.name,
-    icon: MARKER_ICON
+    icon: getMarkerIcon()
   });
   
   const infoWindow = createInfoWindow(place);
@@ -539,7 +552,7 @@ export function clearMap(){
  */
 function resetMarkerIcons(){
   mapState.markerLookup.forEach(item => {
-    item.marker.setIcon(MARKER_ICON);
+    item.marker.setIcon(getMarkerIcon());
   });
 }
 
@@ -551,7 +564,7 @@ function resetMarkerIcons(){
  * @returns {void}
  */
 function activateMarker(marker) {
-  marker.setIcon(ACTIVE_MARKER_ICON);
+  marker.setIcon(getActiveMarkerIcon());
 }
 
 /**
