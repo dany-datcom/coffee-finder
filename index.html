@@ -34,6 +34,12 @@
 
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Maps JavaScript API (Cargado con defer y parámetros recomendados por Google) -->
+  <script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACnb-PSZ2fE_Cop1HYAizvZoqu82G23qI&libraries=places&loading=async" 
+    defer>
+  </script>
 </head>
 
 <body>
@@ -62,11 +68,8 @@
     <!-- Dynamically rendered footer -->
   </footer>
 
-  <!-- Application entry point -->
+  <!-- Application entry point (se ejecuta de último gracias a type="module") -->
   <script type="module" src="/src/main.js"></script>
-
-  <!-- Google Maps JavaScript API -->
-  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACnb-PSZ2fE_Cop1HYAizvZoqu82G23qI"></script>
 </body>
 
 </html>
