@@ -15,9 +15,10 @@
  * @returns {void}
  */
 export function saveFavorite(place) {
-  const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+  if (!place || !place.id) return;
+  const favorites = getFavorites();
   
-  if (!favorites.find(f => f.id === place.id)) {
+  if (!isFavorite(place.id)) {
     favorites.push(place);
     localStorage.setItem("favorites", JSON.stringify(favorites));
     console.log("❤️ Favorite saved:", place.name);
@@ -31,10 +32,29 @@ export function saveFavorite(place) {
  * @returns {void}
  */
 export function removeFavorite(placeId) {
-  const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-  const filtered = favorites.filter(f => f.id !== placeId);
+  if (!placeId) return;
+  const favorites = getFavorites();
+  const filtered = favorites.filter((f) => String(f.id) !== String(placeId));
   localStorage.setItem("favorites", JSON.stringify(filtered));
-  console.log("💔 Favorite removed");
+  console.log(`💔 Favorite removed: ${placeId}`);
+}
+
+/**
+ * Toggles a place in favorites (adds if missing, removes if present).
+ * 
+ * @param {Object} place - Coffee shop object.
+ * @returns {boolean} `true` if now saved, `false` if removed.
+ */
+export function toggleFavorite(place) {
+  if (!place || !place.id) return false;
+  
+  if (isFavorite(place.id)) {
+    removeFavorite(place.id);
+    return false;
+  } else {
+    saveFavorite(place);
+    return true;
+  }
 }
 
 /**
@@ -44,7 +64,12 @@ export function removeFavorite(placeId) {
  * @returns {Array<Object>} List of saved coffee shop objects.
  */
 export function getFavorites() {
-  return JSON.parse(localStorage.getItem("favorites")) || [];
+  try {
+    return JSON.parse(localStorage.getItem("favorites")) || [];
+  } catch (error) {
+    console.error("Error reading favorites from localStorage:", error);
+    return [];
+  }
 }
 
 /**
@@ -54,8 +79,9 @@ export function getFavorites() {
  * @returns {boolean} `true` if the coffee shop is bookmarked, `false` otherwise.
  */
 export function isFavorite(placeId) {
+  if (!placeId) return false;
   const favorites = getFavorites();
-  return favorites.some(f => f.id === placeId);
+  return favorites.some((f) => String(f.id) === String(placeId));
 }
 
 /**
